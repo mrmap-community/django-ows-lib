@@ -4,8 +4,8 @@ from pathlib import Path
 from eulxml.xmlmap import (StringField, XmlObject, load_xmlobject_from_file,
                            load_xmlobject_from_string)
 from ows_lib.xml_mapper.namespaces import NS_WC
-from registry.enums.service import OGCServiceEnum
-from registry.xmlmapper.exceptions import SemanticError
+from ows_lib.client.enums import OGCServiceEnum
+from ows_lib.xml_mapper.exceptions import SemanticError
 
 
 def raise_default_sematic_error(kind: str):

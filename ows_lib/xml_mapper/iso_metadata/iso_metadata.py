@@ -4,13 +4,11 @@ from django.contrib.gis.geos import MultiPolygon
 from django.contrib.gis.geos import Polygon as GeosPolygon
 from eulxml import xmlmap
 from ows_lib.xml_mapper.gml.gml import Gml
-from registry.xmlmapper.mixins import DBModelConverterMixin
-from registry.xmlmapper.namespaces import (GCO_NAMESPACE, GMD_NAMESPACE,
-                                           GML_3_1_1_NAMESPACE, SRV_NAMESPACE)
+from ows_lib.xml_mapper.mixins import CustomXmlObject
+from ows_lib.xml_mapper.namespaces import GCO_NAMESPACE, GMD_NAMESPACE, GML_3_1_1_NAMESPACE, SRV_NAMESPACE
 
 
-class Keyword(DBModelConverterMixin, xmlmap.XmlObject):
-    model = "registry.Keyword"
+class Keyword(CustomXmlObject, xmlmap.XmlObject):
     ROOT_NS = GMD_NAMESPACE
     ROOT_NAME = "keyword"
     ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE),
@@ -19,14 +17,13 @@ class Keyword(DBModelConverterMixin, xmlmap.XmlObject):
     keyword = xmlmap.StringField(xpath="gco:CharacterString")
 
 
-class Category(DBModelConverterMixin, xmlmap.XmlObject):
-    model = "registry.Category"
+class Category(CustomXmlObject, xmlmap.XmlObject):
     # todo:
 
     category = xmlmap.StringField(xpath=".")
 
 
-class Dimension(DBModelConverterMixin, xmlmap.XmlObject):
+class Dimension(CustomXmlObject, xmlmap.XmlObject):
     ROOT_NS = GMD_NAMESPACE
     ROOT_NAME = "extent"
     ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE),
@@ -81,8 +78,7 @@ class EXBoundingPolygon(xmlmap.XmlObject):
         return geometries
 
 
-class ReferenceSystem(DBModelConverterMixin, xmlmap.XmlObject):
-    model = "registry.ReferenceSystem"
+class ReferenceSystem(CustomXmlObject, xmlmap.XmlObject):
     ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE),
                             ("gco", GCO_NAMESPACE)])
 
@@ -101,8 +97,7 @@ class ReferenceSystem(DBModelConverterMixin, xmlmap.XmlObject):
         return field_dict
 
 
-class CiResponsibleParty(DBModelConverterMixin, xmlmap.XmlObject):
-    model = "registry.MetadataContact"
+class CiResponsibleParty(CustomXmlObject, xmlmap.XmlObject):
     ROOT_NAME = "CI_ResponsibleParty"
     ROOT_NS = GMD_NAMESPACE
     ROOT_NAMESPACES = dict([("gmd", "http://www.isotc211.org/2005/gmd"),
@@ -117,7 +112,7 @@ class CiResponsibleParty(DBModelConverterMixin, xmlmap.XmlObject):
         xpath="gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString")
 
 
-class BaseIsoMetadata(DBModelConverterMixin, xmlmap.XmlObject):
+class BaseIsoMetadata(CustomXmlObject, xmlmap.XmlObject):
     """Base ISO Metadata class with namespace declaration common to all ISO Metadata
     XmlObjects.
 
@@ -290,7 +285,6 @@ class MdMetadata(BaseIsoMetadata):
        iso_md.serializeDocument()  # to get the serialized xml document
 
     """
-    model = "registry.ServiceMetadata"
     ROOT_NAME = "MD_Metadata"
     ROOT_NS = GMD_NAMESPACE
 
@@ -311,13 +305,6 @@ class MdMetadata(BaseIsoMetadata):
                                               node_class=MdDataIdentification)
     sv_service_identification = xmlmap.NodeField(xpath="gmd:identificationInfo/gmd:SV_ServiceIdentification",
                                                  node_class=SvServiceIdentification)
-
-    def get_model_class(self):
-        if self.hierarchy_level == "service":
-            self.model = "registry.ServiceMetadata"
-        else:
-            self.model = "registry.DatasetMetadata"
-        return super().get_model_class()
 
     def get_field_dict(self):
         """Custom function to convert xml object to database model schema.
