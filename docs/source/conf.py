@@ -25,7 +25,7 @@ def get_version(package):
                      init_py, re.MULTILINE).group(1)
 
 
-VERSION = get_version("django-ows-lib")
+VERSION = get_version("ows_lib")
 
 project = 'django-ows-lib'
 copyright = '2023, MrMap Community'
