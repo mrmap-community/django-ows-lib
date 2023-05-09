@@ -10,7 +10,7 @@ from ows_lib.client.utils import (construct_polygon_from_bbox_query_param,
 from ows_lib.xml_mapper.xml_requests.utils import PostRequest
 from ows_lib.xml_mapper.xml_requests.wfs.get_feature import (GetFeatureRequest,
                                                              Query)
-from registry.enums.service import OGCOperationEnum
+from ows_lib.client.enums import OGCOperationEnum
 
 
 class OGCRequest:

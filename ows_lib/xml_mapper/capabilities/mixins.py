@@ -1,9 +1,9 @@
 from typing import Callable, Dict, Iterable, List
 from urllib import parse
+from ows_lib.xml_mapper.exceptions import SemanticError
 
-from extras.utils import camel_to_snake
 from ows_lib.xml_mapper.mixins import CallbackList
-from registry.xmlmapper.exceptions import SemanticError
+from camel_converter import to_snake
 
 
 class OperationUrl:
@@ -181,13 +181,13 @@ class OGCServiceMixin:
             _operation_urls = []
 
             for possible_operation in self._possible_operations:
-                mime_types_attr_name = f"_{camel_to_snake(possible_operation)}_mime_types"
+                mime_types_attr_name = f"_{to_snake(possible_operation)}_mime_types"
                 mime_types = getattr(self, mime_types_attr_name)
 
-                get_url_attr_name = f"_{camel_to_snake(possible_operation)}_get_url"
+                get_url_attr_name = f"_{to_snake(possible_operation)}_get_url"
                 get_url = getattr(self, get_url_attr_name)
 
-                post_url_attr_name = f"_{camel_to_snake(possible_operation)}_post_url"
+                post_url_attr_name = f"_{to_snake(possible_operation)}_post_url"
                 post_url = getattr(self, post_url_attr_name)
 
                 if get_url:
@@ -223,11 +223,11 @@ class OGCServiceMixin:
 
     def _update_operation_url_xml_node_by_name(self, operation_url: OperationUrl, remove: bool = False):
         # find url attribute and update it
-        url_attr_name = f"_{camel_to_snake(operation_url.operation)}_{operation_url.method.lower()}_url"
+        url_attr_name = f"_{to_snake(operation_url.operation)}_{operation_url.method.lower()}_url"
         setattr(self, url_attr_name, None if remove else operation_url.url)
 
         # find mime_types list attribute and update it
-        mime_types_attr_name = f"_{camel_to_snake(operation_url.operation)}_mime_types"
+        mime_types_attr_name = f"_{to_snake(operation_url.operation)}_mime_types"
         if remove and not self._operation_has_get_and_post(operation_url):
             setattr(self, mime_types_attr_name, [])
         elif not remove:
@@ -268,13 +268,13 @@ class OGCServiceMixin:
 
     def _clear_all_operation_urls(self) -> None:
         for possible_operation in self._possible_operations:
-            get_url_attr_name = f"_{camel_to_snake(possible_operation)}_get_url"
+            get_url_attr_name = f"_{to_snake(possible_operation)}_get_url"
             setattr(self, get_url_attr_name, None)
 
-            post_url_attr_name = f"_{camel_to_snake(possible_operation)}_post_url"
+            post_url_attr_name = f"_{to_snake(possible_operation)}_post_url"
             setattr(self, post_url_attr_name, None)
 
-            mime_types_attr_name = f"_{camel_to_snake(possible_operation)}_mime_types"
+            mime_types_attr_name = f"_{to_snake(possible_operation)}_mime_types"
             setattr(self, mime_types_attr_name, [])
         self._operation_urls = []
 
