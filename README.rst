@@ -4,6 +4,14 @@ django-ows-lib
 Well layered ows lib with a client implementation to communicate with ogc services with django based objects, 
 including xml mapper classes to serialize and deserialize ows xml files, such as capabilities.
 
+Features
+--------
+
+* `WMS <https://www.ogc.org/standard/wms/>`_ client
+* `WFS <https://www.ogc.org/standard/wfs/>`_ client
+* `CSW <https://www.ogc.org/standard/cat/>`_ client
+
+
 Quick-Start
 -----------
 
