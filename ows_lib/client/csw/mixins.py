@@ -1,8 +1,9 @@
 import re
 
+from requests import Request
+
 from ows_lib.client.mixins import OgcClient
 from ows_lib.client.utils import update_queryparams
-from requests import Request
 
 
 class CatalogueServiceMixin(OgcClient):
@@ -13,7 +14,7 @@ class CatalogueServiceMixin(OgcClient):
         if any((match := prog.match(item)) for item in self.capabilities.get_records_constraints):
             return match.group(0)
         else:
-            return type
+            return "type"
 
     def get_constraint(self, record_type):
         type_name = self.queryable_type_name()

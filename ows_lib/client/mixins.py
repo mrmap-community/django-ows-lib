@@ -1,11 +1,12 @@
 from abc import ABC
 
+from requests import Request, Response, Session
+
 from ows_lib.client.exceptions import InitialError
 from ows_lib.client.utils import update_queryparams
 from ows_lib.models.ogc_request import OGCRequest
 from ows_lib.xml_mapper.capabilities.mixins import OGCServiceMixin
 from ows_lib.xml_mapper.utils import get_parsed_service
-from requests import Request, Session
 
 
 class OgcClient(ABC):
@@ -33,7 +34,7 @@ class OgcClient(ABC):
                 raise InitialError(
                     f"client could not be initialized by the given url: {capabilities}. Response status code: {response.status_code}")
 
-    def send_request(self, request: Request, timeout: int = 10):
+    def send_request(self, request: Request, timeout: int = 10) -> Response:
         return self.session.send(request=request.prepare(), timeout=timeout)
 
     def bypass_request(self, request: OGCRequest) -> Request:
@@ -52,8 +53,7 @@ class OgcClient(ABC):
                 data=request.request.body,
                 headers=request.request.headers)
 
-    def prepare_get_capabilitites_request(
-            self,) -> Request:
+    def prepare_get_capabilitites_request(self) -> Request:
 
         params = {
             "VERSION": self.capabilities.service_type.version,

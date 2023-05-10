@@ -1,9 +1,10 @@
 from typing import List
 
+from requests import Request
+
 from ows_lib.client.mixins import OgcClient
 from ows_lib.client.utils import update_queryparams
 from ows_lib.xml_mapper.xml_requests.wfs.get_feature import GetFeatureRequest
-from requests import Request
 
 
 class WebFeatureServiceMixin(OgcClient):
@@ -35,7 +36,7 @@ class WebFeatureServiceMixin(OgcClient):
 
     def prepare_get_feature_request(
             self,
-            get_feature_request: GetFeatureRequest):
+            get_feature_request: GetFeatureRequest) -> Request:
         params = {
             "VERSION": self.capabilities.service_type.version,
             "REQUEST": "GetFeature",
