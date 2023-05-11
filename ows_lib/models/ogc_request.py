@@ -1,35 +1,37 @@
-from typing import List
+from typing import Dict, List
 
 from django.contrib.gis.geos import GEOSGeometry
-from django.http import HttpRequest
 from eulxml.xmlmap import XmlObject, load_xmlobject_from_string
+from requests import Request
+from requests.models import PreparedRequest
 from ows_lib.client.exceptions import MissingBboxParam, MissingServiceParam
 from ows_lib.client.utils import (construct_polygon_from_bbox_query_param,
                                   get_requested_feature_types,
-                                  get_requested_layers)
+                                  get_requested_layers, update_queryparams)
+from ows_lib.xml_mapper.capabilities.mixins import OGCServiceMixin
 from ows_lib.xml_mapper.xml_requests.utils import PostRequest
 from ows_lib.xml_mapper.xml_requests.wfs.get_feature import (GetFeatureRequest,
                                                              Query)
 from ows_lib.client.enums import OGCOperationEnum
 
 
-class OGCRequest:
+class OGCRequest(Request):
 
-    def __init__(self, request: HttpRequest) -> None:
-        self.request: HttpRequest = request
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self._GET_LOWER: dict = {}
         self._ogc_query_params: dict = {}
         self._bbox: GEOSGeometry = None
         self._requested_entities: list[str] = []
         self._xml_request: XmlObject = None
 
-        if request.method == "GET":
+        if self.method == "GET":
             self.operation: str = self.GET_LOWER.get("request", "")
             self.service_version: str = self.GET_LOWER.get("version", "")
             self.service_type: str = self.GET_LOWER.get("service", "")
-        elif request.method == "POST":
+        elif self.method == "POST":
             post_request: PostRequest = load_xmlobject_from_string(
-                string=request.body, xmlclass=PostRequest)
+                string=self.data, xmlclass=PostRequest)
 
             self.operation: str = post_request.operation
             self.service_version: str = post_request.version
@@ -61,11 +63,11 @@ class OGCRequest:
 
     @property
     def is_post(self) -> bool:
-        return self.request.method == "POST"
+        return self.method.lower() == "post"
 
     @property
     def is_get(self) -> bool:
-        return self.request.method == "GET"
+        return self.method.lower() == "get"
 
     @property
     def is_get_capabilities_request(self) -> bool:
@@ -99,11 +101,11 @@ class OGCRequest:
         return self._bbox
 
     @property
-    def GET_LOWER(self) -> dict:
-        return {k.lower(): v for k, v in self.request.GET.items()} if not self._GET_LOWER else self._GET_LOWER
+    def GET_LOWER(self) -> Dict:
+        return {k.lower(): v for k, v in self.params.items()} if not self._GET_LOWER else self._GET_LOWER
 
     @property
-    def ogc_query_params(self) -> dict:
+    def ogc_query_params(self) -> Dict:
         """ Parses the GET parameters into all member variables, which can be found in a ogc request.
         Returns:
             the for this version converted get_dict
@@ -126,7 +128,7 @@ class OGCRequest:
                 if self.is_get_feature_request:
 
                     self._xml_request: GetFeatureRequest = load_xmlobject_from_string(
-                        string=self.request.body, xmlclass=GetFeatureRequest)
+                        string=self.data, xmlclass=GetFeatureRequest)
             elif self.is_get:
                 # we construct a xml get feature request to post it with a filter
                 queries: List[Query] = []

@@ -1,12 +1,13 @@
-from typing import List
+from typing import Dict, List
 
 from ows_lib.client.mixins import OgcClient
 from ows_lib.client.utils import update_queryparams
-from requests import Request
+from requests import Request, Response
 
 
 class WebMapServiceMixin(OgcClient):
-
+    """Abstract WebMapService class which implements some basic functionality for all wms client applications
+    """
     @property
     def crs_qp(self):
         raise NotImplementedError
@@ -19,7 +20,7 @@ class WebMapServiceMixin(OgcClient):
     def get_feature_info_operation_name(self):
         raise NotImplementedError
 
-    def prepare_get_map_request(
+    def get_map_request(
             self,
             layers: List[str],
             styles: List[str],
@@ -33,6 +34,35 @@ class WebMapServiceMixin(OgcClient):
             exceptions: str = "xml",
             time: List[str] = None,
             elevation: float = None) -> Request:
+        """Constructs a GetMap request to use for requesting
+
+        :param layers: The name of layers which shall be requested
+        :type layers: List[str]
+        :param styles: The styles of the layers which shall be requested
+        :type styles: List[str]
+        :param crs: the reference system which shall be used
+        :type crs: str
+        :param bbox: the bounding box 
+        :type bbox: tuple[float, float, float, float]
+        :param width: the pixel width 
+        :type width: int
+        :param height: the pixel height
+        :type height: int
+        :param format: the response format
+        :type format: str
+        :param transparent: shall the response be a transparent image?, defaults to None
+        :type transparent: bool, optional
+        :param bgcolor: the background color of the response, defaults to 0xFFFFFF
+        :type bgcolor: int, optional
+        :param exceptions: the exception format which shall be used by the server, defaults to "xml"
+        :type exceptions: str, optional
+        :param time: the time value or range for map data, defaults to None
+        :type time: List[str], optional
+        :param elevation: _description_, defaults to None
+        :type elevation: float, optional
+        :return: the constructed get map request object
+        :rtype: Request
+        """
 
         if isinstance(transparent, str):
             if transparent == "TRUE":
@@ -67,7 +97,7 @@ class WebMapServiceMixin(OgcClient):
 
         return Request(method="GET", url=url)
 
-    def prepare_get_feature_info_request(
+    def get_feature_info_request(
             self,
             get_map_request: Request,
             query_layers: List[str],
@@ -76,8 +106,26 @@ class WebMapServiceMixin(OgcClient):
             j: int,
             feature_count: int = 0,
             exceptions: str = "xml") -> Request:
+        """Constructs a GetFeatureInfo request to use for requesting
 
-        params = get_map_request.params
+        :param get_map_request: The GetMap request where this request shall based on
+        :type get_map_request: requests.Request
+        :param query_layers: The list of layers for that the feature info shall be requested
+        :type query_layers: List[str]
+        :param info_format: The concrete format of the response
+        :type info_format: str
+        :param i: the x value of the x/y point tuple
+        :type i: int
+        :param j: the y value of the x/y point tuple
+        :type j: int
+        :param feature_count: The number of features that shall be returned, defaults to 0
+        :type feature_count: int, optional
+        :param exceptions: the exception format of the server to response with, defaults to "xml"
+        :type exceptions: str, optional
+        :return: the constructed get feature info request object
+        :rtype: requests.Request
+        """
+        params: Dict = get_map_request.params
 
         get_feature_info_params = {
             "VERSION": self.capabilities.service_type.version,

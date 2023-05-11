@@ -1,4 +1,5 @@
 class InitialError(Exception):
+    """Raised when a ogc client can't be initialized by a given capabilities document"""
     pass
 
 

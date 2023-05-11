@@ -1,6 +1,18 @@
 from enum import Enum
 
 
+class OGCServiceEnum(Enum):
+    """ Defines all supported service types
+
+    """
+    ALL = "all"
+    WMS = "wms"
+    WFS = "wfs"
+    WMC = "wmc"
+    DATASET = "dataset"
+    CSW = "csw"
+
+
 class OGCOperationEnum(Enum):
     """ Defines all known operation names
 

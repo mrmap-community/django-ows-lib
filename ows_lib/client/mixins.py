@@ -10,7 +10,15 @@ from ows_lib.xml_mapper.utils import get_parsed_service
 
 
 class OgcClient(ABC):
-    capabilities: OGCServiceMixin = None
+    """Abstract OgcClient class which implements some basic functionality for all ogc client applications
+
+    :param capabilities: The capabilities document to initialize the client
+    :type capabilities: OGCServiceMixin | str
+
+    :param session: The session object that shall be used
+    :type session: requests.Session, optional
+    """
+    capabilities: OGCServiceMixin
 
     def __init__(
             self,
@@ -34,27 +42,27 @@ class OgcClient(ABC):
                 raise InitialError(
                     f"client could not be initialized by the given url: {capabilities}. Response status code: {response.status_code}")
 
-    def send_request(self, request: Request, timeout: int = 10) -> Response:
+    def send_request(self, request: OGCRequest, timeout: int = 10) -> Response:
+        """Sends a given request with internal session object.
+
+        :param request: A request object that shall be sended
+        :type request: requests.Request
+
+        :param timeout: The time value for maximium waiting time of the response.
+        :type int:
+
+        :return: Returns the response of the given request
+        :rtype: requests.Response
+
+        """
         return self.session.send(request=request.prepare(), timeout=timeout)
 
-    def bypass_request(self, request: OGCRequest) -> Request:
-        if request.is_get:
-            return Request(
-                method="GET",
-                url=self.capabilities.get_operation_url_by_name_and_method(
-                    name=request.operation, method="Get"),
-                params=request.request.GET,
-                headers=request.request.headers)
-        if request.is_post:
-            return Request(
-                method="POST",
-                url=self.capabilities.get_operation_url_by_name_and_method(
-                    name=request.operation, method="Post"),
-                data=request.request.body,
-                headers=request.request.headers)
+    def get_capabilitites_request(self) -> OGCRequest:
+        """Constructs a basic GetCapabilities request to use for requesting
 
-    def prepare_get_capabilitites_request(self) -> Request:
-
+        :return: A valid GetCapabilitites request
+        :rtype: requests.Request
+        """
         params = {
             "VERSION": self.capabilities.service_type.version,
             "REQUEST": "GetCapabilities",
@@ -66,4 +74,4 @@ class OgcClient(ABC):
                 "GetCapabilities", "Get").url,
             params=params)
 
-        return Request(method="GET", url=url)
+        return OGCRequest(url=url)

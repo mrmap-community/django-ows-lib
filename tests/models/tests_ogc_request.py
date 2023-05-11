@@ -15,11 +15,10 @@ class OGCRequestTest(SimpleTestCase):
     def test_ogc_request_with_get_map_request(self):
         """Test that OGCRequest helper class works correctly for a given GetMap get request"""
 
-        request = self.factory.get(
-            '/mrmap-proxy/wms/cd16cc1f-3abb-4625-bb96-fbe80dbe23e3/',
-            {"REQUEST": "GetMap", "SERVICE": "WMS", "VERSION": "1.3.0", "LAYERS": "somelayer,anotherlayer"})
-
-        ogc_request: OGCRequest = OGCRequest(request=request)
+        ogc_request: OGCRequest = OGCRequest(
+            method="GET",
+            url="/mrmap-proxy/wms/cd16cc1f-3abb-4625-bb96-fbe80dbe23e3/",
+            params={"REQUEST": "GetMap", "SERVICE": "WMS", "VERSION": "1.3.0", "LAYERS": "somelayer,anotherlayer"})
 
         self.assertTrue(ogc_request.is_get)
         self.assertTrue(ogc_request.is_get_map_request)
@@ -35,10 +34,11 @@ class OGCRequestTest(SimpleTestCase):
         get_feature_request: GetFeatureRequest = load_xmlobject_from_file(
             filename=path, xmlclass=GetFeatureRequest)
 
-        request = self.factory.post(path='/mrmap-proxy/wfs/73cf78c9-6605-47fd-ac4f-1be59265df65/',
-                                    data=get_feature_request.serializeDocument().decode("UTF-8"), content_type="application/gml+xml; version=3.2")
-
-        ogc_request: OGCRequest = OGCRequest(request=request)
+        ogc_request: OGCRequest = OGCRequest(
+            url="/mrmap-proxy/wfs/73cf78c9-6605-47fd-ac4f-1be59265df65/",
+            data=get_feature_request.serializeDocument(),
+            headers={"content_type": "application/gml+xml; version=3.2"},
+            method="POST")
 
         self.assertTrue(ogc_request.is_post)
         self.assertTrue(ogc_request.is_get_feature_request)

@@ -1,4 +1,4 @@
-Welcome to django-mptt2 documentation!
+Welcome to django-ows-lib documentation!
 ======================================
 
 .. include:: ../../README.rst
