@@ -31,7 +31,7 @@ WebMapService
 
 .. code-block:: python
 
-    get_map_request = client.prepare_get_map_request(
+    get_map_request = client.get_map_request(
         layers=["root"] ,
         styles=["root"] ,
         crs="EPSG:4326" ,

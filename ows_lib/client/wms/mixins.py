@@ -1,8 +1,10 @@
 from typing import Dict, List
 
+from requests import Request
+
 from ows_lib.client.mixins import OgcClient
 from ows_lib.client.utils import update_queryparams
-from requests import Request, Response
+from ows_lib.models.ogc_request import OGCRequest
 
 
 class WebMapServiceMixin(OgcClient):
@@ -33,7 +35,7 @@ class WebMapServiceMixin(OgcClient):
             bgcolor: int = 0xFFFFFF,
             exceptions: str = "xml",
             time: List[str] = None,
-            elevation: float = None) -> Request:
+            elevation: float = None) -> OGCRequest:
         """Constructs a GetMap request to use for requesting
 
         :param layers: The name of layers which shall be requested
@@ -105,7 +107,7 @@ class WebMapServiceMixin(OgcClient):
             i: int,
             j: int,
             feature_count: int = 0,
-            exceptions: str = "xml") -> Request:
+            exceptions: str = "xml") -> OGCRequest:
         """Constructs a GetFeatureInfo request to use for requesting
 
         :param get_map_request: The GetMap request where this request shall based on
@@ -146,4 +148,4 @@ class WebMapServiceMixin(OgcClient):
                 self.get_feature_info_operation_name, "Get").url,
             params=params)
 
-        return Request(method="GET", url=url)
+        return OGCRequest(method="GET", url=url)

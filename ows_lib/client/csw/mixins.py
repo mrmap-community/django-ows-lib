@@ -1,9 +1,8 @@
 import re
 
-from requests import Request
-
 from ows_lib.client.mixins import OgcClient
 from ows_lib.client.utils import update_queryparams
+from ows_lib.models.ogc_request import OGCRequest
 
 
 class CatalogueServiceMixin(OgcClient):
@@ -11,8 +10,8 @@ class CatalogueServiceMixin(OgcClient):
     def queryable_type_name(self):
         """Returns the first matching string of the constraints list which matches the name 'type'"""
         prog = re.compile(r'(\w+:type$)|(^type$)')
-        if any((match := prog.match(item)) for item in self.capabilities.get_records_constraints):
-            return match.group(0)
+        if any((_match := prog.match(item)) for item in self.capabilities.get_records_constraints):
+            return _match.group(0)
         else:
             return "type"
 
@@ -20,7 +19,7 @@ class CatalogueServiceMixin(OgcClient):
         type_name = self.queryable_type_name()
         return f'<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc"><ogc:PropertyIsEqualTo><ogc:PropertyName>{type_name}</ogc:PropertyName><ogc:Literal>{record_type}</ogc:Literal></ogc:PropertyIsEqualTo></ogc:Filter>'
 
-    def prepare_get_records_request(
+    def get_records_request(
         self,
         type_names: str = "gmd:MD_Metadata",
         result_type: str = "hits",
@@ -30,7 +29,7 @@ class CatalogueServiceMixin(OgcClient):
         max_records: int = None,
         start_position: int = None,
 
-    ) -> Request:
+    ) -> OGCRequest:
 
         params = {
             "VERSION": self.capabilities.service_type.version,
@@ -64,14 +63,14 @@ class CatalogueServiceMixin(OgcClient):
                 "GetRecords", "Get").url,
             params=params)
 
-        return Request(method="GET", url=url)
+        return OGCRequest(method="GET", url=url)
 
-    def prepare_get_record_by_id_request(
+    def get_record_by_id_request(
         self,
         id: str,
         output_schema: str = "http://www.isotc211.org/2005/gmd",
         element_set_name: str = "full",
-    ) -> Request:
+    ) -> OGCRequest:
         params = {
             "VERSION": self.capabilities.service_type.version,
             "SERVICE": "CSW",
@@ -86,4 +85,4 @@ class CatalogueServiceMixin(OgcClient):
                 "GetRecordById", "Get").url,
             params=params)
 
-        return Request(method="GET", url=url)
+        return OGCRequest(method="GET", url=url)

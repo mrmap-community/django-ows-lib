@@ -19,5 +19,8 @@
     "editor.defaultFormatter": "ms-python.autopep8"
   },
   "python.formatting.provider": "none",
-  "autoDocstring.docstringFormat": "sphinx"
+  "autoDocstring.docstringFormat": "sphinx",
+  "files.associations": {
+    "*.yaml": "home-assistant"
+  }
 }

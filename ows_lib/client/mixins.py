@@ -74,4 +74,4 @@ class OgcClient(ABC):
                 "GetCapabilities", "Get").url,
             params=params)
 
-        return OGCRequest(url=url)
+        return OGCRequest(method="Get", url=url)
