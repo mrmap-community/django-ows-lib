@@ -3,9 +3,10 @@ from pathlib import Path
 
 from eulxml.xmlmap import (StringField, XmlObject, load_xmlobject_from_file,
                            load_xmlobject_from_string)
-from ows_lib.xml_mapper.namespaces import NS_WC
+
 from ows_lib.client.enums import OGCServiceEnum
 from ows_lib.xml_mapper.exceptions import SemanticError
+from ows_lib.xml_mapper.namespaces import NS_WC
 
 
 def raise_default_sematic_error(kind: str):
@@ -60,25 +61,20 @@ def get_import_path_for_xml_mapper(capabilities_xml):
         capabilities_xml=capabilities_xml)
 
     if parsed_service.kind == OGCServiceEnum.WMS.value:
-        match parsed_service.version:
-            case "1.1.1":
-                return "ows_lib.xml_mapper.capabilities.wms.wms111"
-            case "1.3.0":
-                return "ows_lib.xml_mapper.capabilities.wms.wms130"
-            case _:
-                raise NotImplementedError(
-                    f"Version {parsed_service.version} for wms is not supported.")
+        if parsed_service.version == "1.1.1":
+            return "ows_lib.xml_mapper.capabilities.wms.wms111"
+        elif parsed_service.version == "1.3.1":
+            return "ows_lib.xml_mapper.capabilities.wms.wms130"
+        raise NotImplementedError(
+            f"Version {parsed_service.version} for wms is not supported.")
     elif parsed_service.kind == OGCServiceEnum.WFS.value:
-        match parsed_service.version:
-            case "2.0.0":
-                return "ows_lib.xml_mapper.capabilities.wfs.wfs200"
-            case _:
-                raise NotImplementedError(
-                    f"Version {parsed_service.version} for wfs is not supported.")
+        if parsed_service.version == "2.0.0":
+            return "ows_lib.xml_mapper.capabilities.wfs.wfs200"
+        raise NotImplementedError(
+            f"Version {parsed_service.version} for wfs is not supported.")
     elif parsed_service.kind == OGCServiceEnum.CSW.value:
-        match parsed_service.version:
-            case "2.0.2":
-                return "ows_lib.xml_mapper.capabilities.csw.csw202"
+        if parsed_service.version == "2.0.2":
+            return "ows_lib.xml_mapper.capabilities.csw.csw202"
         raise NotImplementedError(
             f"Version {parsed_service.version} for csw is not supported.")
 

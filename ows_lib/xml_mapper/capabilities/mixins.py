@@ -1,9 +1,10 @@
 from typing import Callable, Dict, Iterable, List
 from urllib import parse
-from ows_lib.xml_mapper.exceptions import SemanticError
 
-from ows_lib.xml_mapper.mixins import CallbackList
 from camel_converter import to_snake
+
+from ows_lib.xml_mapper.exceptions import SemanticError
+from ows_lib.xml_mapper.mixins import CallbackList
 
 
 class OperationUrl:
@@ -255,16 +256,14 @@ class OGCServiceMixin:
             if items and not items._callback:
                 items._callback = self._update_operation_url_xml_node
 
-        match list_operation:
-            case "append" | "insert":
-                self._update_operation_url_xml_node(items)
-            case "extend":
-                [self._update_operation_url_xml_node(
-                    item) for item in items]
-            case "pop" | "remove":
-                self._update_operation_url_xml_node(items, True)
-            case "clear":
-                self._clear_all_operation_urls()
+        if list_operation in ["append", "insert"]:
+            self._update_operation_url_xml_node(items)
+        elif list_operation == "extend":
+            [self._update_operation_url_xml_node(item) for item in items]
+        elif list_operation in ["pop", "remove"]:
+            self._update_operation_url_xml_node(items, True)
+        elif list_operation == "clear":
+            self._clear_all_operation_urls()
 
     def _clear_all_operation_urls(self) -> None:
         for possible_operation in self._possible_operations:
