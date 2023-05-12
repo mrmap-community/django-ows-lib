@@ -1,5 +1,5 @@
 Welcome to django-ows-lib documentation!
-======================================
+========================================
 
 .. include:: ../../README.rst
 

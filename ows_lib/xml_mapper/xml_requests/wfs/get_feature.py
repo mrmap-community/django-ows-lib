@@ -5,6 +5,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.geos import Polygon as GeosPolygon
 from eulxml.xmlmap import (NodeField, NodeListField, StringField,
                            StringListField, XmlObject)
+
 from ows_lib.xml_mapper.namespaces import (FES_2_0_NAMEPSACE,
                                            GML_3_2_2_NAMESPACE,
                                            WFS_2_0_0_NAMESPACE)
@@ -120,11 +121,11 @@ class Query(XmlObject):
     filter = NodeField(xpath="./fes:Filter", node_class=Filter)
 
     @property
-    def type_names(self) -> list[str]:
+    def type_names(self) -> List[str]:
         return self._type_names.split(",")
 
     @type_names.setter
-    def type_names(self, type_names: list[str]) -> None:
+    def type_names(self, type_names: List[str]) -> None:
         self._type_names = ", ".join(type_names)
 
 
@@ -187,7 +188,7 @@ class GetFeatureRequest(XmlObject):
             query.filter.and_condition.node.extend(
                 [child for child in old_filter])
 
-    def secure_spatial(self, feature_types: list[dict]) -> None:
+    def secure_spatial(self, feature_types: List[dict]) -> None:
 
         lookup_dict = {}
         for feature_type in feature_types:
