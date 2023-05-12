@@ -1,5 +1,5 @@
 import datetime
-from typing import Callable, Dict
+from typing import Callable, Dict, List
 
 from django.conf import settings
 from django.contrib.gis.geos import Polygon
@@ -8,6 +8,7 @@ from isodate import (Duration, ISO8601Error, parse_date, parse_datetime,
                      parse_duration)
 from isodate.isodatetime import datetime_isoformat
 from isodate.isoduration import duration_isoformat
+
 from ows_lib.xml_mapper.capabilities.mixins import OGCServiceMixin
 from ows_lib.xml_mapper.mixins import CallbackList
 
@@ -105,7 +106,7 @@ class TimeDimensionMixin:
         return self._time_extents
 
     @time_extents.setter
-    def time_extents(self, time_extents: list[TimeExtent]) -> None:
+    def time_extents(self, time_extents: List[TimeExtent]) -> None:
         """Custom setter function to serialize a list of TimeExtent objects and update it to the xml node"""
         values = []
         intervals = []
@@ -159,7 +160,7 @@ class TimeDimensionMixin:
 
         return _value
 
-    def __parse_list_of_multiple_intervals(self) -> list[TimeExtent]:
+    def __parse_list_of_multiple_intervals(self) -> List[TimeExtent]:
         __extents = []
         intervals = self._extent.split(",")
         for interval in intervals:
@@ -172,7 +173,7 @@ class TimeDimensionMixin:
             start=split[0], stop=split[1], resolution=split[2])
         return TimeExtent(start=start, stop=stop, resolution=resolution)
 
-    def __parse_list_of_values(self) -> list[TimeExtent]:
+    def __parse_list_of_values(self) -> List[TimeExtent]:
         split = self._extent.split(",")
         _extents = []
         for value in split:

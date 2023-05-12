@@ -22,7 +22,7 @@ class OGCRequest(Request):
         self._params_lower: dict = {}
         self._ogc_query_params: dict = {}
         self._bbox: GEOSGeometry = None
-        self._requested_entities: list[str] = []
+        self._requested_entities: List[str] = []
         self._xml_request: XmlObject = None
 
         if self.method == "GET":
@@ -38,13 +38,13 @@ class OGCRequest(Request):
             self.service_type: str = post_request.service_type
 
     @property
-    def requested_entities(self) -> list[str]:
+    def requested_entities(self) -> List[str]:
         """Returns the list of requested entities
 
         This function analyzes the request and find out which layers or featuretypes are requests.
 
         :return: list of requested layers | list of request featuretypes
-        :rtype: list[str]
+        :rtype: List[str]
         """
         if not self._requested_entities:
             if self.is_wms:
