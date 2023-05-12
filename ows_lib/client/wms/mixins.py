@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from requests import Request
 
@@ -27,7 +27,7 @@ class WebMapServiceMixin(OgcClient):
             layers: List[str],
             styles: List[str],
             crs: str,
-            bbox: tuple[float, float, float, float],
+            bbox: Tuple[float, float, float, float],
             width: int,
             height: int,
             format: str,
@@ -45,7 +45,7 @@ class WebMapServiceMixin(OgcClient):
         :param crs: the reference system which shall be used
         :type crs: str
         :param bbox: the bounding box 
-        :type bbox: tuple[float, float, float, float]
+        :type bbox: Tuple[float, float, float, float]
         :param width: the pixel width 
         :type width: int
         :param height: the pixel height
