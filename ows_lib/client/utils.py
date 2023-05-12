@@ -1,17 +1,19 @@
 import urllib.parse
-from typing import List
+from typing import Dict, List
 
 from axis_order_cache.registry import Registry
 from axis_order_cache.utils import get_epsg_srid
 from django.contrib.gis.gdal import SpatialReference
 from django.contrib.gis.geos import GEOSGeometry, Polygon
+from requests import Session
+
 from ows_lib.client.exceptions import (MissingBboxParam, MissingCrsParam,
                                        MissingServiceParam)
 from ows_lib.xml_mapper.capabilities.mixins import OGCServiceMixin
-from requests import Session
 
 
-def update_queryparams(url: str, params: dict):
+def update_queryparams(url: str, params: Dict):
+    """Helper function to update query paramase inside an existing url with trailing query params"""
     url_parts = urllib.parse.urlparse(url)
     query = dict(urllib.parse.parse_qsl(url_parts.query))
     query.update(params)
@@ -168,29 +170,53 @@ def construct_polygon_from_bbox_query_param(get_dict) -> GEOSGeometry:
         return _construct_polygon_from_bbox_query_param_for_wfs(get_dict=get_dict)
 
 
-def get_requested_layers(params: dict) -> List[str]:
+def get_requested_layers(params: Dict) -> List[str]:
+    """Filters the given params by requested layers
+
+    :param params: all query parameters
+    :type params: Dict
+    :return: the requested layers from the query params
+    :rtype: List[str]
+    """
     return list(filter(None, params.get("LAYERS", params.get("layers", "")).split(",")))
 
 
-def get_requested_feature_types(params: dict) -> List[str]:
+def get_requested_feature_types(params: Dict) -> List[str]:
+    """Filters the given params by requested featuretypes
+
+    :param params: all query parameters
+    :type params: Dict
+    :return: the requested featuretypes from the query params
+    :rtype: List[str]
+    """
     return list(filter(None, params.get("TYPENAMES", params.get("typenames", "")).split(",")))
 
 
-def filter_ogc_query_params(query_params: dict) -> dict:
+def filter_ogc_query_params(params: Dict) -> Dict:
     """ Parses the GET parameters into all member variables, which can be found in a ogc request.
-    Returns:
-        the for this version converted get_dict
+
+    :param params: all query parameters
+    :type params: Dict
+    :return: the ogc specific query parameters
+    :rtype: Dict
     """
     query_keys = ["SERVICE", "REQUEST", "LAYERS", "BBOX", "VERSION", "FORMAT",
                   "OUTPUTFORMAT", "SRS", "CRS", "SRSNAME", "WIDTH", "HEIGHT",
                   "TRANSPARENT", "EXCEPTIONS", "BGCOLOR", "TIME", "ELEVATION",
                   "QUERY_LAYERS", "INFO_FORMAT", "FEATURE_COUNT", "I", "J"]
-    filtered = {key: query_params.get(
-        key, query_params.get(key.lower())) for key in query_keys}
+    filtered = {key: params.get(
+        key, params.get(key.lower())) for key in query_keys}
     return filtered
 
 
 def get_client(capabilities: OGCServiceMixin, session: Session = Session()):
+    """Helper function to construct the correct client version for given capabilities document
+
+    :param capabilities: The parsed capabilities document
+    :type capabilities: OGCServiceMixin
+    :return: the concrete service client
+    :rtype: WebMapService | WebFeatureService | CatalogueService
+    """
     if capabilities.service_type.name == "wms":
         if capabilities.service_type.version == "1.1.1":
             from ows_lib.client.wms.wms111 import WebMapService

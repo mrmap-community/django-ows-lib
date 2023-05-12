@@ -35,3 +35,10 @@ Abstract OgcClient base class
     :members:
     :undoc-members:
 
+
+
+Utitily functions
+~~~~~~~~~~~~~~~~~
+.. automodule:: ows_lib.client.utils
+   :members:
+   :undoc-members:
