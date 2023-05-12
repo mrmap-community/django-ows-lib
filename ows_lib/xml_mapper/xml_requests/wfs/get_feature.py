@@ -156,7 +156,7 @@ class GetFeatureRequest(XmlObject):
             srid=srid, coords=coords)
         return within_condition
 
-    def _construct_spatial_filter_condition(self, polygon: GeosPolygon, value_reference: str) -> (WithinCondition | OrCondition):
+    def _construct_spatial_filter_condition(self, polygon: GeosPolygon, value_reference: str):
         if len(polygon.coords) == 1:
             return self._construct_within_condition(srid=polygon.srid, value_reference=value_reference, coords=polygon.coords)
         elif len(polygon.coords) > 1:
