@@ -1,3 +1,11 @@
+.. image:: https://readthedocs.org/projects/django-ows-lib/badge/?version=latest
+    :target: https://django-ows-lib.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+.. image:: https://badge.fury.io/py/django-ows-lib.svg
+    :target: https://pypi.org/project/django-ows-lib/
+    :alt: PyPi version
+
 django-ows-lib
 ==============
 
