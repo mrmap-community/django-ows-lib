@@ -36,3 +36,29 @@ jobs:
           pip install tox
       - name: Run tox targets for ${{ matrix.python-version }}
         run: tox run -f py$(echo ${{ matrix.python-version }} | tr -d .)
+
+      - name: upload coverage reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-reports
+          path: ./.coverage
+
+    sonarqube:
+      needs: ["test"]
+      name: SonarQube Trigger
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checking out
+          uses: actions/checkout@master
+          with:
+            # Disabling shallow clone is recommended for improving relevancy of reporting
+            fetch-depth: 0
+        - name: download coverage reports
+          uses: actions/download-artifact@v2
+          with:
+            name: coverage-reports
+            path: ./
+        - name: SonarQube Scan
+          uses: kitabisa/sonarqube-action@v1.2.0
+          with:
+            login: ${{ secrets.SONARQUBE_TOKEN }}
