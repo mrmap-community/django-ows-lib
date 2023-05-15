@@ -1,6 +1,7 @@
 import os
 import re
 
+from pkg_resources import parse_requirements
 from setuptools import find_namespace_packages, setup
 
 name = 'django-ows-lib'
@@ -10,6 +11,10 @@ url = 'https://github.com/mrmap-community/django-ows-lib'
 author = 'mrmap-community'
 author_email = 'jonas.kiefer@live.com'
 license = 'MIT'
+
+
+install_reqs = parse_requirements(".requirements/base.txt")
+reqs = [str(ir.req) for ir in install_reqs]
 
 
 with open("README.rst", "r", encoding="utf-8") as fh:
@@ -40,9 +45,7 @@ setup(
     packages=[p for p in find_namespace_packages(
         exclude=('tests*',)) if p.startswith(package)],
     include_package_data=True,
-    install_requires=[
-        "django>=3.0,<4.3",
-    ],
+    install_requires=reqs,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
