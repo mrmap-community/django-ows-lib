@@ -1,7 +1,6 @@
 import os
 import re
 
-from pkg_resources import parse_requirements
 from setuptools import find_namespace_packages, setup
 
 name = 'django-ows-lib'
@@ -13,8 +12,8 @@ author_email = 'jonas.kiefer@live.com'
 license = 'MIT'
 
 
-install_reqs = parse_requirements(".requirements/base.txt")
-reqs = [str(ir.req) for ir in install_reqs]
+with open('.requirements/base.txt') as f:
+    required = f.read().splitlines()
 
 
 with open("README.rst", "r", encoding="utf-8") as fh:
@@ -45,7 +44,7 @@ setup(
     packages=[p for p in find_namespace_packages(
         exclude=('tests*',)) if p.startswith(package)],
     include_package_data=True,
-    install_requires=reqs,
+    install_requires=required,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
