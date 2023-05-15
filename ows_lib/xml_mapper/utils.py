@@ -76,18 +76,15 @@ def get_import_path_for_xml_mapper(capabilities_xml) -> str:
             return "ows_lib.xml_mapper.capabilities.wms.wms111"
         elif parsed_service.version == "1.3.0":
             return "ows_lib.xml_mapper.capabilities.wms.wms130"
-        raise NotImplementedError(
-            f"Version {parsed_service.version} for wms is not supported.")
     elif parsed_service.kind == OGCServiceEnum.WFS.value:
         if parsed_service.version == "2.0.0":
             return "ows_lib.xml_mapper.capabilities.wfs.wfs200"
-        raise NotImplementedError(
-            f"Version {parsed_service.version} for wfs is not supported.")
     elif parsed_service.kind == OGCServiceEnum.CSW.value:
         if parsed_service.version == "2.0.2":
             return "ows_lib.xml_mapper.capabilities.csw.csw202"
-        raise NotImplementedError(
-            f"Version {parsed_service.version} for csw is not supported.")
+
+    raise NotImplementedError(
+        f"Version {parsed_service.version} for {parsed_service.kind} is not supported.")
 
 
 def get_xml_mapper(capabilities_xml):
