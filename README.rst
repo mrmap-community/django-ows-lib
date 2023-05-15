@@ -6,6 +6,14 @@
     :target: https://pypi.org/project/django-ows-lib/
     :alt: PyPi version
 
+.. image:: https://sonarcloud.io/api/project_badges/measure?project=mrmap-community_django-ows-lib&metric=coverage
+    :target: https://sonarcloud.io/project/overview?id=mrmap-community_django-ows-lib
+    :alt: Coverage
+
+.. image:: https://sonarcloud.io/api/project_badges/measure?project=mrmap-community_django-ows-lib&metric=alert_status
+    :target: https://sonarcloud.io/project/overview?id=mrmap-community_django-ows-lib
+    :alt: Quality Gate
+
 django-ows-lib
 ==============
 
