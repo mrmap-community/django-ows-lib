@@ -56,14 +56,25 @@ def get_ogc_service_type_helper(capabilities_xml: OGCServiceTypeHelper):
     return load_func(capabilities_xml, xmlclass=OGCServiceTypeHelper)
 
 
-def get_import_path_for_xml_mapper(capabilities_xml):
+def get_import_path_for_xml_mapper(capabilities_xml) -> str:
+    """helper function to resolve the correct import path for specific service type and version
+
+    :param capabilities_xml: The capabilities raw file
+    :type capabilities_xml: pathlib.Path | str | bytes
+
+    :raises NotImplementedError: For all unsupported service types and versions
+
+    :return: The relative path to the correct xml mapper
+    :rtype: str
+
+    """
     parsed_service: OGCServiceTypeHelper = get_ogc_service_type_helper(
         capabilities_xml=capabilities_xml)
 
     if parsed_service.kind == OGCServiceEnum.WMS.value:
         if parsed_service.version == "1.1.1":
             return "ows_lib.xml_mapper.capabilities.wms.wms111"
-        elif parsed_service.version == "1.3.1":
+        elif parsed_service.version == "1.3.0":
             return "ows_lib.xml_mapper.capabilities.wms.wms130"
         raise NotImplementedError(
             f"Version {parsed_service.version} for wms is not supported.")
@@ -80,8 +91,6 @@ def get_import_path_for_xml_mapper(capabilities_xml):
 
 
 def get_xml_mapper(capabilities_xml):
-    """helper function to get the correct xml mapper class for a given capabilities xml"""
-
     import_path = get_import_path_for_xml_mapper(
         capabilities_xml=capabilities_xml)
 
@@ -99,6 +108,12 @@ def get_xml_mapper(capabilities_xml):
 
 
 def get_parsed_service(capabilities_xml):
+    """Helper function to resolve the correct mapper class by the given capabilities document
+
+    :param capabilities_xml: The capabilities raw file
+    :type capabilities_xml: pathlib.Path | str | bytes
+    :return: The concrete xml mapper class for specific service kind and version
+    """
     load_func = get_load_func(capabilities_xml)
     xml_mapper = get_xml_mapper(capabilities_xml)
     return load_func(capabilities_xml, xmlclass=xml_mapper)
