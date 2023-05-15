@@ -12,6 +12,15 @@ author_email = 'jonas.kiefer@live.com'
 license = 'MIT'
 
 
+REQUIREMENTS = [
+    "django>=3.0,<4.3",
+    "django-axis-order==0.1.0",
+    "eulxml==1.1.3",
+    "isodate==0.6.1",
+    "camel-converter==3.0.0",
+    "requests>=2.23.0,<2.30.0"
+]
+
 with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
@@ -40,9 +49,7 @@ setup(
     packages=[p for p in find_namespace_packages(
         exclude=('tests*',)) if p.startswith(package)],
     include_package_data=True,
-    install_requires=[
-        "django>=3.0,<4.3",
-    ],
+    install_requires=REQUIREMENTS,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
