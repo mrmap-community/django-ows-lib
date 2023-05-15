@@ -8,34 +8,40 @@ from lxml.etree import XPathEvalError
 
 class CallbackList(list):
 
-    def __init__(self, iterable, callback: Callable, *args, **kwargs) -> None:
+    def __init__(self, iterable, callback: Callable = None, *args, **kwargs) -> None:
         super().__init__(iterable, *args, **kwargs)
         self.callback = callback
 
     def append(self, item) -> None:
         super().append(item)
-        self.callback(list_operation="append", items=item)
+        if self.callback:
+            self.callback(list_operation="append", items=item)
 
     def extend(self, items) -> None:
         super().extend(items)
-        self.callback(list_operation="extend", items=items)
+        if self.callback:
+            self.callback(list_operation="extend", items=items)
 
     def pop(self, index):
         operation_url_to_pop = self[index]
         super().pop(index)
-        self.callback(list_operation="pop", items=operation_url_to_pop)
+        if self.callback:
+            self.callback(list_operation="pop", items=operation_url_to_pop)
 
     def clear(self) -> None:
         super().clear()
-        self.callback(list_operation="clear")
+        if self.callback:
+            self.callback(list_operation="clear")
 
     def insert(self, index, obj) -> None:
         super().insert(index, obj)
-        self.callback(list_operation="insert", items=obj)
+        if self.callback:
+            self.callback(list_operation="insert", items=obj)
 
     def remove(self, value) -> None:
         super().remove(value)
-        self.callback(list_operation="remove", items=value)
+        if self.callback:
+            self.callback(list_operation="remove", items=value)
 
 
 class CustomXmlObject(XmlObject):

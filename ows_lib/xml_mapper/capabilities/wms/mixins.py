@@ -97,7 +97,7 @@ class TimeExtent:
 
 class TimeDimensionMixin:
     # cache variable to store the parsed extent value
-    _time_extents: CallbackList = CallbackList()
+    _time_extents: CallbackList = CallbackList([], None)
 
     @property
     def time_extents(self):
