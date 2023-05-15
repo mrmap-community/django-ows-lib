@@ -198,7 +198,8 @@ class OGCRequest(Request):
         :rtype: XmlObject
         """
         if not self._xml_request:
-            if self.is_get_feature_request:
+            # TODO: implement the xml request generation for other requests too.
+            if self.is_get_feature_request:  # NOSONAR: See todo above
                 # FIXME: depending on version, different xml mapper are needed...
                 if self.is_post:
                     self._xml_request: GetFeatureRequest = load_xmlobject_from_string(

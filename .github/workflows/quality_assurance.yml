@@ -41,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coverage-reports
-          path: ./.coverage
+          path: ./coverage.xml
 
   sonarcloud:
     needs: ["test"]

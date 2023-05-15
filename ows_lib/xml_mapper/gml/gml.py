@@ -10,7 +10,7 @@ class Gml(xmlmap.XmlObject):
     def geos(self) -> GEOSGeometry:
         geometry = GEOSGeometry.from_gml(self.serialize())
         if self.srs_name:
-            authority, srid = get_epsg_srid(self.srs_name)
+            _, srid = get_epsg_srid(self.srs_name)
         else:
             srid = 4326
         return GEOSGeometry(geo_input=geometry.wkt, srid=srid)

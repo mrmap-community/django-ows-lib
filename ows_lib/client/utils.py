@@ -40,7 +40,7 @@ def _construct_polygon_from_bbox_query_param_for_wfs(get_dict):
     :rtype: :class:`django.contrib.gis.geos.polygon.Polygon`
     """
     try:
-        major_version, minor_version, fix_version = get_dict["version"].split(
+        major_version, minor_version, _ = get_dict["version"].split(
             ".")
         major_version = int(major_version)
         minor_version = int(minor_version)
@@ -65,7 +65,7 @@ def _construct_polygon_from_bbox_query_param_for_wfs(get_dict):
             if len(bbox_values) == 4:
                 epsg_sr = registry.get(srid=4326)
             elif len(bbox_values) == 5:
-                authority, srid = get_epsg_srid(bbox_values[4])
+                _, srid = get_epsg_srid(bbox_values[4])
                 epsg_sr = registry.get(srid=srid)
             else:
                 raise NotImplementedError(
@@ -114,7 +114,7 @@ def _construct_polygon_from_bbox_query_param_for_wms(get_dict):
     :rtype: :class:`django.contrib.gis.geos.polygon.Polygon`
     """
     try:
-        major_version, minor_version, fix_version = get_dict["version"].split(
+        _, minor_version, _ = get_dict["version"].split(
             ".")
         minor_version = int(minor_version)
         srid = get_dict.get("srs", None)

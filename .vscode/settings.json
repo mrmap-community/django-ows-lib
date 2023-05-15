@@ -22,5 +22,8 @@
   "autoDocstring.docstringFormat": "sphinx",
   "files.associations": {
     "*.yaml": "home-assistant"
+  },
+  "sonarlint.connectedMode.project": {
+    "projectKey": "mrmap-community_django-ows-lib"
   }
 }

@@ -169,7 +169,7 @@ class OGCServiceTypeMixin:
 class OGCServiceMixin:
     """Abstract class for all OGCService xml mappers,
     which implements functionality for global usage."""
-    _operation_urls: CallbackList = []
+    _operation_urls: CallbackList = CallbackList()
 
     @property
     def _possible_operations(self):

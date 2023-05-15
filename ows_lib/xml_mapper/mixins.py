@@ -20,22 +20,22 @@ class CallbackList(list):
         super().extend(items)
         self.callback(list_operation="extend", items=items)
 
-    def pop(self, __index):
-        operation_url_to_pop = self[__index]
-        super().pop(__index)
+    def pop(self, index):
+        operation_url_to_pop = self[index]
+        super().pop(index)
         self.callback(list_operation="pop", items=operation_url_to_pop)
 
     def clear(self) -> None:
         super().clear()
         self.callback(list_operation="clear")
 
-    def insert(self, __index, __object) -> None:
-        super().insert(__index, __object)
-        self.callback(list_operation="insert", items=__object)
+    def insert(self, index, obj) -> None:
+        super().insert(index, obj)
+        self.callback(list_operation="insert", items=obj)
 
-    def remove(self, __value) -> None:
-        super().remove(__value)
-        self.callback(list_operation="remove", items=__value)
+    def remove(self, value) -> None:
+        super().remove(value)
+        self.callback(list_operation="remove", items=value)
 
 
 class CustomXmlObject(XmlObject):

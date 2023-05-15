@@ -3,9 +3,11 @@ import urllib
 from django.contrib.gis.geos import MultiPolygon
 from django.contrib.gis.geos import Polygon as GeosPolygon
 from eulxml import xmlmap
+
 from ows_lib.xml_mapper.gml.gml import Gml
 from ows_lib.xml_mapper.mixins import CustomXmlObject
-from ows_lib.xml_mapper.namespaces import GCO_NAMESPACE, GMD_NAMESPACE, GML_3_1_1_NAMESPACE, SRV_NAMESPACE
+from ows_lib.xml_mapper.namespaces import (GCO_NAMESPACE, GMD_NAMESPACE,
+                                           GML_3_1_1_NAMESPACE, SRV_NAMESPACE)
 
 
 class Keyword(CustomXmlObject, xmlmap.XmlObject):
@@ -18,7 +20,7 @@ class Keyword(CustomXmlObject, xmlmap.XmlObject):
 
 
 class Category(CustomXmlObject, xmlmap.XmlObject):
-    # todo:
+    # TODO: Add xml specific information like root_ns, root_name, and namespaces list
 
     category = xmlmap.StringField(xpath=".")
 

@@ -6,6 +6,7 @@ from django.contrib.gis.geos import Polygon as GeosPolygon
 from eulxml.xmlmap import (NodeField, NodeListField, StringField,
                            StringListField, XmlObject)
 
+from ows_lib.xml_mapper.consts import FES_AND, FES_OR, FES_WITHIN
 from ows_lib.xml_mapper.namespaces import (FES_2_0_NAMEPSACE,
                                            GML_3_2_2_NAMESPACE,
                                            WFS_2_0_0_NAMESPACE)
@@ -69,8 +70,8 @@ class OrCondition(XmlObject):
     }
 
     within_conditions = NodeListField(
-        xpath="./fes:Within", node_class=WithinCondition)
-    or_conditions = NodeListField(xpath="./fes:Or", node_class="self")
+        xpath=FES_WITHIN, node_class=WithinCondition)
+    or_conditions = NodeListField(xpath=FES_OR, node_class="self")
     # FIXME: and_conditions are also possible
 
 
@@ -82,9 +83,9 @@ class AndCondition(XmlObject):
     }
 
     within_conditions = NodeListField(
-        xpath="./fes:Within", node_class=WithinCondition)
-    and_conditions = NodeListField(xpath="./fes:And", node_class="self")
-    or_conditions = NodeListField(xpath="./fes:Or", node_class=OrCondition)
+        xpath=FES_WITHIN, node_class=WithinCondition)
+    and_conditions = NodeListField(xpath=FES_AND, node_class="self")
+    or_conditions = NodeListField(xpath=FES_OR, node_class=OrCondition)
 
 
 class Filter(XmlObject):
@@ -98,10 +99,10 @@ class Filter(XmlObject):
 
     ressource_ids = StringListField(xpath="./fes:ResourceId/@rid")
 
-    and_condition = NodeField(xpath="./fes:And", node_class=AndCondition)
-    or_condition = NodeField(xpath="./fes:Or", node_class=OrCondition)
+    and_condition = NodeField(xpath=FES_AND, node_class=AndCondition)
+    or_condition = NodeField(xpath=FES_OR, node_class=OrCondition)
     within_conditions = NodeListField(
-        xpath="./fes:Within", node_class=WithinCondition)
+        xpath=FES_WITHIN, node_class=WithinCondition)
 
 
 class Query(XmlObject):
