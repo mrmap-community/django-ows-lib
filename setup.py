@@ -17,7 +17,8 @@ REQUIREMENTS = [
     "django-axis-order==0.1.0",
     "eulxml==1.1.3",
     "isodate==0.6.1",
-    "camel-converter==3.0.0"
+    "camel-converter==3.0.0",
+    "requests>=2.23.0,<2.30.0"
 ]
 
 with open("README.rst", "r", encoding="utf-8") as fh:
