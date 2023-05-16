@@ -271,6 +271,8 @@ class MdMetadata(BaseIsoMetadata):
     """XML mapper class to deserialize/serialize metadata information defined in the ISO 19115 specs.
 
     """
+    XSD_SCHEMA = "http://www.isotc211.org/2005/gmd"
+
     ROOT_NAME = "MD_Metadata"
     ROOT_NS = GMD_NAMESPACE
     ROOT_NAMESPACES = {
