@@ -18,6 +18,6 @@ class MDMetadataTestCase(SimpleTestCase):
 
     def test_base_mapper(self):
         self.assertEqual(
-            self.parsed_metadata.service_contact.name,
+            self.parsed_metadata.file_identifier,
             "de.dwd.geoserver.fach.RBSN_FF"
         )

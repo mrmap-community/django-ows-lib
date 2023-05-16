@@ -127,8 +127,8 @@ class BaseIsoMetadata(CustomXmlObject, xmlmap.XmlObject):
     """
     ROOT_NS = GMD_NAMESPACE
     ROOT_NAMESPACES = {
-        "gmd", GMD_NAMESPACE,
-        "gco", GCO_NAMESPACE,
+        "gmd": GMD_NAMESPACE,
+        "gco": GCO_NAMESPACE,
     }
 
 
@@ -222,9 +222,9 @@ class SvOperationMetadata(BasicInformation):
     ROOT_NS = SRV_NAMESPACE
     ROOT_NAME = "SV_OperationMetadata"
     ROOT_NAMESPACES = {
-        "gmd", GMD_NAMESPACE,
-        "gco", GCO_NAMESPACE,
-        "srv", SRV_NAMESPACE
+        "gmd": GMD_NAMESPACE,
+        "gco": GCO_NAMESPACE,
+        "srv": SRV_NAMESPACE
     }
 
     # mandatory fields
@@ -240,9 +240,9 @@ class SvServiceIdentification(BaseIsoMetadata):
     ROOT_NS = GMD_NAMESPACE
     ROOT_NAME = "SV_ServiceIdentification"
     ROOT_NAMESPACES = {
-        "gmd", GMD_NAMESPACE,
-        "gco", GCO_NAMESPACE,
-        "srv", SRV_NAMESPACE
+        "gmd": GMD_NAMESPACE,
+        "gco": GCO_NAMESPACE,
+        "srv": SRV_NAMESPACE
     }
 
     # mandatory fields
@@ -276,7 +276,7 @@ class MdMetadata(BaseIsoMetadata):
     ROOT_NAME = "MD_Metadata"
     ROOT_NS = GMD_NAMESPACE
     ROOT_NAMESPACES = {
-        "gmd", GMD_NAMESPACE,
+        "gmd": GMD_NAMESPACE,
     }
 
     file_identifier = xmlmap.StringField(
@@ -355,7 +355,7 @@ class WrappedIsoMetadata(xmlmap.XmlObject):
     This class is needed if you want to parse GetRecordsResponse xml for example. There are 0..n ``gmd:MD_Metadata``
     nodes wrapped by a ``csw:GetRecordsResponse`` node.
     """
-    ROOT_NAMESPACES = {"gmd", GMD_NAMESPACE}
+    ROOT_NAMESPACES = {"gmd": GMD_NAMESPACE}
 
     iso_metadata = xmlmap.NodeListField(
         xpath="//gmd:MD_Metadata", node_class=MdMetadata)
