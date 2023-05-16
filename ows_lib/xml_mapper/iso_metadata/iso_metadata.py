@@ -47,18 +47,26 @@ class EXGeographicBoundingBox(xmlmap.XmlObject):
     ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE),
                             ("gco", GCO_NAMESPACE)])
 
-    min_x = xmlmap.FloatField(xpath="gmd:westBoundLongitude/gco:Decimal")
-    max_x = xmlmap.FloatField(xpath="gmd:eastBoundLongitude/gco:Decimal")
-    min_y = xmlmap.FloatField(xpath="gmd:southBoundLatitude/gco:Decimal")
-    max_y = xmlmap.FloatField(xpath="gmd:northBoundLatitude/gco:Decimal")
+    _min_x = xmlmap.FloatField(xpath="gmd:westBoundLongitude/gco:Decimal")
+    _max_x = xmlmap.FloatField(xpath="gmd:eastBoundLongitude/gco:Decimal")
+    _min_y = xmlmap.FloatField(xpath="gmd:southBoundLatitude/gco:Decimal")
+    _max_y = xmlmap.FloatField(xpath="gmd:northBoundLatitude/gco:Decimal")
 
-    def to_polygon(self):
-        if self.min_x and self.max_x and self.min_y and self.max_y:
-            return GeosPolygon(((self.min_x, self.min_y),
-                               (self.min_x, self.max_y),
-                               (self.max_x, self.max_y),
-                               (self.max_x, self.min_y),
-                               (self.min_x, self.min_y)))
+    @property
+    def bounding_box(self) -> GeosPolygon:
+        if self._min_x and self._max_x and self._min_y and self._max_y:
+            return GeosPolygon(((self._min_x, self._min_y),
+                               (self._min_x, self._max_y),
+                               (self._max_x, self._max_y),
+                               (self._max_x, self._min_y),
+                               (self._min_x, self._min_y)))
+
+    @bounding_box.setter
+    def bounding_box(self, value: GeosPolygon):
+        self._min_x = value.extent[0]
+        self._min_y = value.extent[1]
+        self._max_x = value.extent[2]
+        self._max_y = value.extent[3]
 
 
 class EXBoundingPolygon(xmlmap.XmlObject):
@@ -314,7 +322,7 @@ class MdMetadata(BaseIsoMetadata):
             return self._sv_service_identification.get_bounding_geometry()
 
     @bounding_geometry.setter
-    def bounding_geometry(self, value):
+    def bounding_geometry(self, value: MultiPolygon):
         # TODO
         raise NotImplementedError()
 

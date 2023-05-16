@@ -31,7 +31,7 @@ class MDMetadataTestCase(SimpleTestCase):
             datetime.fromisoformat("2019-05-16T12:55:18")
         )
 
-    def test_bounding_geometry(self):
+    def test_bounding_geometry_getter(self):
         min_x = 5.87
         max_x = 15.04
         min_y = 47.27
@@ -45,4 +45,23 @@ class MDMetadataTestCase(SimpleTestCase):
                                       (max_x, max_y),
                                       (max_x, min_y),
                                       (min_x, min_y))))
+        )
+
+    def test_bounding_geometry_setter(self):
+        min_x = 6
+        max_x = 7
+        min_y = 40
+        max_y = 45
+        bounding_geometry = MultiPolygon(GeosPolygon(((min_x, min_y),
+                                                      (min_x, max_y),
+                                                      (max_x, max_y),
+                                                      (max_x, min_y),
+                                                      (min_x, min_y))))
+        self.parsed_metadata.bounding_geometry = bounding_geometry
+
+        self.fail
+        self.assertEqual(
+            self.parsed_metadata.bounding_geometry,
+
+
         )
