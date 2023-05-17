@@ -277,7 +277,7 @@ class MdMetadata(BaseIsoMetadata):
     """XML mapper class to deserialize/serialize metadata information defined in the ISO 19115 specs.
 
     """
-    XSD_SCHEMA = "http://www.isotc211.org/2005/gmd"
+    XSD_SCHEMA = "http://www.isotc211.org/2005/gmd"  # NOSONAR: the xml schema url will still be with insecure http protocol. To match all xml files, we need to let it as it is.
 
     ROOT_NAME = "MD_Metadata"
     ROOT_NS = GMD_NAMESPACE
