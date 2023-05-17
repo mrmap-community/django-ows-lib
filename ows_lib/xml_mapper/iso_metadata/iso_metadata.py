@@ -47,18 +47,26 @@ class EXGeographicBoundingBox(xmlmap.XmlObject):
     ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE),
                             ("gco", GCO_NAMESPACE)])
 
-    min_x = xmlmap.FloatField(xpath="gmd:westBoundLongitude/gco:Decimal")
-    max_x = xmlmap.FloatField(xpath="gmd:eastBoundLongitude/gco:Decimal")
-    min_y = xmlmap.FloatField(xpath="gmd:southBoundLatitude/gco:Decimal")
-    max_y = xmlmap.FloatField(xpath="gmd:northBoundLatitude/gco:Decimal")
+    _min_x = xmlmap.FloatField(xpath="gmd:westBoundLongitude/gco:Decimal")
+    _max_x = xmlmap.FloatField(xpath="gmd:eastBoundLongitude/gco:Decimal")
+    _min_y = xmlmap.FloatField(xpath="gmd:southBoundLatitude/gco:Decimal")
+    _max_y = xmlmap.FloatField(xpath="gmd:northBoundLatitude/gco:Decimal")
 
-    def to_polygon(self):
-        if self.min_x and self.max_x and self.min_y and self.max_y:
-            return GeosPolygon(((self.min_x, self.min_y),
-                               (self.min_x, self.max_y),
-                               (self.max_x, self.max_y),
-                               (self.max_x, self.min_y),
-                               (self.min_x, self.min_y)))
+    @property
+    def geometry(self) -> GeosPolygon:
+        if self._min_x and self._max_x and self._min_y and self._max_y:
+            return GeosPolygon(((self._min_x, self._min_y),
+                               (self._min_x, self._max_y),
+                               (self._max_x, self._max_y),
+                               (self._max_x, self._min_y),
+                               (self._min_x, self._min_y)))
+
+    @geometry.setter
+    def geometry(self, value: GeosPolygon):
+        self._min_x = value.extent[0]
+        self._min_y = value.extent[1]
+        self._max_x = value.extent[2]
+        self._max_y = value.extent[3]
 
 
 class EXBoundingPolygon(xmlmap.XmlObject):
@@ -66,18 +74,24 @@ class EXBoundingPolygon(xmlmap.XmlObject):
     ROOT_NAME = "EX_BoundingPolygon"
     ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE)])
 
-    geometry_list = xmlmap.NodeListField(xpath="gmd:polygon",
-                                         node_class=Gml)
+    _geometry_list = xmlmap.NodeListField(xpath="gmd:polygon",
+                                          node_class=Gml)
 
-    def get_geometries(self):
+    @property
+    def geometries(self) -> MultiPolygon:
         """Return all founded gml geometries as a list of geos geometries.
-        :return: a list of geos geometries
-        :rtype: list
+        :return: 
+        :rtype: MultiPolygon
         """
         geometries = []
-        for geometry in self.geometry_list:
-            geometries.append(geometry.to_gml())
-        return geometries
+        for geometry in self._geometry_list:
+            geometries.append(geometry.to_geometry())
+        return MultiPolygon(geometries)
+
+    @geometries.setter
+    def geometries(self, value):
+        # TODO
+        raise NotImplementedError()
 
 
 class ReferenceSystem(CustomXmlObject, xmlmap.XmlObject):
@@ -126,8 +140,10 @@ class BaseIsoMetadata(CustomXmlObject, xmlmap.XmlObject):
        :attr:`GCO_NAMESPACE` is mapped to the prefix **gco**.
     """
     ROOT_NS = GMD_NAMESPACE
-    ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE),
-                            ("gco", GCO_NAMESPACE)])
+    ROOT_NAMESPACES = {
+        "gmd": GMD_NAMESPACE,
+        "gco": GCO_NAMESPACE,
+    }
 
 
 class BasicInformation(BaseIsoMetadata):
@@ -137,11 +153,11 @@ class BasicInformation(BaseIsoMetadata):
     access_constraints = xmlmap.StringField(
         xpath="gmd:resourceConstraints/gmd:MD_LegalConstraints[gmd:accessConstraints/gmd:MD_RestrictionCode/@codeListValue=\"otherRestrictions\"]/gmd:otherConstraints/gco:CharacterString")
     # dataset specific fields
-    code_md = xmlmap.StringField(
+    _code_md = xmlmap.StringField(
         xpath="gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
-    code_rs = xmlmap.StringField(
+    _code_rs = xmlmap.StringField(
         xpath="gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:code/gco:CharacterString")
-    code_space_rs = xmlmap.StringField(
+    _code_space_rs = xmlmap.StringField(
         xpath="gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:codeSpace/gco:CharacterString")
 
     # character_set_code = xmlmap.StringField(xpath=f"{NS_WC}characterSet']/{NS_WC}MD_CharacterSetCode']/@codeListValue")
@@ -151,67 +167,45 @@ class BasicInformation(BaseIsoMetadata):
     keywords = xmlmap.NodeListField(xpath="gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword",
                                     node_class=Keyword)
 
-    def get_bounding_geometry(self):
-        polygon_list = []
-        for bbox in self.bbox_lat_lon_list:  # noqa xmlmap.NodeListField provide iterator
-            polygon_list.append(bbox.to_polygon())
-        for polygon in self.bounding_polygon_list:  # noqa xmlmap.NodeListField provide iterator
-            polygon_list.extend(polygon.get_geometries())
-        return MultiPolygon(polygon_list)
+    is_broken = False  # flag to signal that this metadata object has integrity error
 
-    def get_spatial_res(self, field_dict):
-        if self.equivalent_scale is not None and self.equivalent_scale > 0:
-            field_dict["spatial_res_value"] = self.equivalent_scale
-            field_dict["spatial_res_type"] = "scaleDenominator"
-        elif self.ground_res is not None and self.ground_res > 0:
-            field_dict["spatial_res_value"] = self.ground_res
-            field_dict["spatial_res_type"] = "groundDistance"
-        field_dict.pop("equivalent_scale", None)
-        field_dict.pop("ground_res", None)
-
-    def get_dataset_id(self, field_dict):
-        if field_dict.get("code_md", None):
-            code = field_dict["code_md"]
+    def _parse_identifier(self):
+        _dataset_id = ""
+        _code_space = ""
+        if self._code_md:
             # new implementation:
             # http://inspire.ec.europa.eu/file/1705/download?token=iSTwpRWd&usg=AOvVaw18y1aTdkoMCBxpIz7tOOgu
             # from 2017-03-02 - the MD_Identifier - see C.2.5 Unique resource identifier - it is separated with a slash
             # - the codes pace should be everything after the last slash
             # now try to check if a single slash is available and if the md_identifier is a url
-            parsed_url = urllib.parse.urlsplit(code)
+            parsed_url = urllib.parse.urlsplit(self._code_md)
             if parsed_url.scheme == "http" or parsed_url.scheme == "https" and "/" in parsed_url.path:
-                tmp = code.split("/")
-                field_dict["dataset_id"] = tmp[len(tmp) - 1]
-                field_dict["dataset_id_code_space"] = code.replace(
-                    field_dict["dataset_id"], "")
-            elif parsed_url.scheme == "http" or parsed_url.scheme == "https" and "#" in code:
-                tmp = code.split("#")
-                field_dict["dataset_id"] = tmp[1]
-                field_dict["dataset_id_code_space"] = tmp[0]
+                tmp = self._code_md.split("/")
+                _dataset_id = tmp[len(tmp) - 1]
+                _code_space = self._code_md.replace(_dataset_id, "")
+            elif parsed_url.scheme == "http" or parsed_url.scheme == "https" and "#" in self._code_md:
+                tmp = self._code_md.split("#")
+                _dataset_id = tmp[1]
+                _code_space = tmp[0]
             else:
-                field_dict["dataset_id"] = code
-                field_dict["dataset_id_code_space"] = ""
-            del field_dict["code_md"]
-
-        elif field_dict.get("code_rs", None):
+                _dataset_id = self._code_md
+                _code_space = ""
+        elif self._code_rs:
             # try to read code from RS_Identifier
-            code = field_dict["code_rs"]
-            code_space = field_dict["code_space_rs"]
-            if code_space is not None and code is not None and len(code_space) > 0 and len(code) > 0:
-                field_dict["dataset_id"] = code
-                field_dict["dataset_id_code_space"] = code_space
+            if self._code_space_rs is not None and self._code_rs is not None and len(self._code_space_rs) > 0 and len(self._code_rs) > 0:
+                _dataset_id = self._code_rs
+                _code_space = self._code_space_rs
             else:
-                field_dict["is_broken"] = True
-            del field_dict["code_rs"]
+                self.is_broken = True
+        return _dataset_id.replace('\n', '').strip(), _code_space.replace('\n', '').strip()
 
-        field_dict.pop("code_space_rs", None)
+    @property
+    def dataset_id(self) -> str:
+        return self._parse_identifier()[0]
 
-    def get_date_stamp(self, field_dict):
-        date = field_dict.pop("date_stamp_date", None)
-        date_time = field_dict.pop("date_stamp_date_time", None)
-        if date:
-            field_dict.update({"date_stamp": date})
-        elif date_time:
-            field_dict.update({"date_stamp": date_time})
+    @property
+    def dataset_id_code_space(self) -> str:
+        return self._parse_identifier()[1]
 
 
 class MdDataIdentification(BasicInformation):
@@ -231,10 +225,14 @@ class MdDataIdentification(BasicInformation):
 
 
 class SvOperationMetadata(BasicInformation):
+    ROOT_NS = SRV_NAMESPACE
     ROOT_NAME = "SV_OperationMetadata"
-    ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE),
-                            ("gco", GCO_NAMESPACE),
-                            ("srv", SRV_NAMESPACE)])
+    ROOT_NAMESPACES = {
+        "gmd": GMD_NAMESPACE,
+        "gco": GCO_NAMESPACE,
+        "srv": SRV_NAMESPACE
+    }
+
     # mandatory fields
     operation = xmlmap.StringField(
         xpath="svr:operationName/gco:characterString")
@@ -245,10 +243,14 @@ class SvOperationMetadata(BasicInformation):
 
 
 class SvServiceIdentification(BaseIsoMetadata):
+    ROOT_NS = GMD_NAMESPACE
     ROOT_NAME = "SV_ServiceIdentification"
-    ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE),
-                            ("gco", GCO_NAMESPACE),
-                            ("srv", SRV_NAMESPACE)])
+    ROOT_NAMESPACES = {
+        "gmd": GMD_NAMESPACE,
+        "gco": GCO_NAMESPACE,
+        "srv": SRV_NAMESPACE
+    }
+
     # mandatory fields
     service_type = xmlmap.StringField(xpath="srv:serviceType/gco:LocalName")
     coupling_type = xmlmap.StringField(
@@ -265,83 +267,121 @@ class SvServiceIdentification(BaseIsoMetadata):
     dimensions = xmlmap.NodeListField(xpath="srv:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent",
                                       node_class=Dimension)
 
+    equivalent_scale = xmlmap.FloatField(
+        xpath="srv:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
+    ground_res = xmlmap.FloatField(
+        xpath="srv:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
+
 
 class MdMetadata(BaseIsoMetadata):
     """XML mapper class to deserialize/serialize metadata information defined in the ISO 19115 specs.
 
-    :Example:
-
-    .. code-block:: python
-       from registry.parsers.iso import iso_metadata
-
-       # iso metadata from scratch
-       iso_md = iso_metadata.IsoMetadata()
-       iso_md = file_identifier = "4be3fcf9-9376-4813-9bfd-708912038635"
-       iso_md.hierarchy_level = "dataset"
-       ...
-       iso_md.serializeDocument()  # to get the serialized xml document
-
-       # iso metadata from other object. All field names which shall be initiated shall have the same name.
-       iso_md = IsoMetadata.from_dict({"file_identifier": "4be3fcf9-9376-4813-9bfd-708912038635",
-                                       "hierarchy_level": "dataset", ... })
-       iso_md.serializeDocument()  # to get the serialized xml document
-
     """
+    XSD_SCHEMA = "http://www.isotc211.org/2005/gmd"  # NOSONAR: the xml schema url will still be with insecure http protocol. To match all xml files, we need to let it as it is.
+
     ROOT_NAME = "MD_Metadata"
     ROOT_NS = GMD_NAMESPACE
+    ROOT_NAMESPACES = {
+        "gmd": GMD_NAMESPACE,
+    }
 
     file_identifier = xmlmap.StringField(
         xpath="gmd:fileIdentifier/gco:CharacterString")
     # language = xmlmap.StringField(xpath=f"{NS_WC}identificationInfo']//{NS_WC}language']/{NS_WC}LanguageCode']")
-    hierarchy_level = xmlmap.StringField(
+    _hierarchy_level = xmlmap.StringField(
         xpath="gmd:hierarchyLevel/gmd:MD_ScopeCode[@codeList='http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_ScopeCode']/@codeListValue")
-    date_stamp_date = xmlmap.DateField(xpath="gmd:dateStamp/gco:Date")
-    date_stamp_date_time = xmlmap.DateTimeField(
+    _date_stamp_date = xmlmap.DateField(xpath="gmd:dateStamp/gco:Date")
+    _date_stamp_date_time = xmlmap.DateTimeField(
         xpath="gmd:dateStamp/gco:DateTime")
     metadata_contact = xmlmap.NodeField(
         xpath="gmd:contact/gmd:CI_ResponsibleParty", node_class=CiResponsibleParty)
     reference_systems = xmlmap.NodeListField(
         xpath="gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier/gmd:RS_Identifier", node_class=ReferenceSystem)
 
-    md_data_identification = xmlmap.NodeField(xpath="gmd:identificationInfo/gmd:MD_DataIdentification",
-                                              node_class=MdDataIdentification)
-    sv_service_identification = xmlmap.NodeField(xpath="gmd:identificationInfo/gmd:SV_ServiceIdentification",
-                                                 node_class=SvServiceIdentification)
+    _md_data_identification = xmlmap.NodeField(xpath="gmd:identificationInfo/gmd:MD_DataIdentification",
+                                               node_class=MdDataIdentification)
+    _sv_service_identification = xmlmap.NodeField(xpath="gmd:identificationInfo/gmd:SV_ServiceIdentification",
+                                                  node_class=SvServiceIdentification)
 
-    def get_field_dict(self):
-        """Custom function to convert xml object to database model schema.
+    def _get_child_identification(self):
+        if self._md_data_identification:
+            return self._md_data_identification
+        elif self._sv_service_identification:
+            return self._sv_service_identification
 
-        :return: all attributes in db model structure
-        :rtype: dict
-        """
-        field_dict = super().get_field_dict()
-        if self.md_data_identification:
-            field_dict["bounding_geometry"] = self.md_data_identification.get_bounding_geometry()
-            field_dict.update(self.md_data_identification.get_field_dict())
-            self.md_data_identification.get_spatial_res(field_dict=field_dict)
-            self.md_data_identification.get_dataset_id(field_dict=field_dict)
-            self.md_data_identification.get_date_stamp(field_dict=field_dict)
-        elif self.sv_service_identification:
-            field_dict["bounding_geometry"] = self.sv_service_identification.get_bounding_geometry()
-            field_dict.update(self.sv_service_identification.get_field_dict())
-            self.sv_service_identification.get_spatial_res(
-                field_dict=field_dict)
-            self.sv_service_identification.get_dataset_id(
-                field_dict=field_dict)
-            self.sv_service_identification.get_date_stamp(
-                field_dict=field_dict)
-        # no database field. So we drop it here.
-        field_dict.pop("hierarchy_level", None)
-        return field_dict
+    @property
+    def date_stamp(self):
+        return self._date_stamp_date if self._date_stamp_date else self._date_stamp_date_time
+
+    @date_stamp.setter
+    def date_stamp(self, value):
+        # TODO
+        raise NotImplementedError()
+
+    @property
+    def bounding_geometry(self):
+        child = self._get_child_identification()
+        if child:
+            polygon_list = []
+            for bbox in child.bbox_lat_lon_list:
+                polygon_list.append(bbox.geometry)
+            for polygon in child.bounding_polygon_list:
+                polygon_list.extend(polygon.geometries)
+            return MultiPolygon(polygon_list)
+
+    @bounding_geometry.setter
+    def bounding_geometry(self, value: MultiPolygon):
+        bbox = value.convex_hull
+        bounding_polygons = value
+        # TODO
+        raise NotImplementedError()
+
+    def get_spatial_res(self):
+        child = self._get_child_identification()
+        if child:
+            if child.equivalent_scale is not None and child.equivalent_scale > 0:
+                return child.equivalent_scale, "scaleDenominator"
+            elif self.ground_res is not None and self.ground_res > 0:
+                return child.ground_res, "groundDistance"
+
+    @property
+    def spatial_res_type(self):
+        return self.get_spatial_res()[0]
+
+    @spatial_res_type.setter
+    def spatial_res_type(self, value):
+        # TODO
+        raise NotImplementedError()
+
+    @property
+    def spatial_res_value(self):
+        return self.get_spatial_res()[1]
+
+    @spatial_res_value.setter
+    def spatial_res_value(self, value):
+        # TODO
+        raise NotImplementedError()
+
+    @property
+    def dataset_id(self) -> str:
+        child = self._get_child_identification()
+        if child:
+            return child.dataset_id
+
+    @property
+    def dataset_id_code_space(self) -> str:
+        child = self._get_child_identification()
+        if child:
+            return child.dataset_id_code_space
 
 
 class WrappedIsoMetadata(xmlmap.XmlObject):
     """Helper class to parse wrapped IsoMetadata objects.
 
-    This class is needed you want to parse GetRecordsResponse xml for example. There are 0..n ``gmd:MD_Metadata``
+    This class is needed if you want to parse GetRecordsResponse xml for example. There are 0..n ``gmd:MD_Metadata``
     nodes wrapped by a ``csw:GetRecordsResponse`` node.
     """
-    ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE)])
+    ROOT_NAMESPACES = {"gmd": GMD_NAMESPACE}
 
     iso_metadata = xmlmap.NodeListField(
         xpath="//gmd:MD_Metadata", node_class=MdMetadata)
