@@ -197,7 +197,7 @@ class BasicInformation(BaseIsoMetadata):
                 _code_space = self._code_space_rs
             else:
                 self.is_broken = True
-        return _dataset_id, _code_space
+        return _dataset_id.replace('\n', '').strip(), _code_space.replace('\n', '').strip()
 
     @property
     def dataset_id(self) -> str:
@@ -303,6 +303,12 @@ class MdMetadata(BaseIsoMetadata):
     _sv_service_identification = xmlmap.NodeField(xpath="gmd:identificationInfo/gmd:SV_ServiceIdentification",
                                                   node_class=SvServiceIdentification)
 
+    def _get_child_identification(self):
+        if self._md_data_identification:
+            return self._md_data_identification
+        elif self._sv_service_identification:
+            return self._sv_service_identification
+
     @property
     def date_stamp(self):
         return self._date_stamp_date if self._date_stamp_date else self._date_stamp_date_time
@@ -314,11 +320,7 @@ class MdMetadata(BaseIsoMetadata):
 
     @property
     def bounding_geometry(self):
-        child = None
-        if self._md_data_identification:
-            child = self._md_data_identification
-        elif self.sv_service_identification:
-            child = self._sv_service_identification
+        child = self._get_child_identification()
         if child:
             polygon_list = []
             for bbox in child.bbox_lat_lon_list:
@@ -335,16 +337,12 @@ class MdMetadata(BaseIsoMetadata):
         raise NotImplementedError()
 
     def get_spatial_res(self):
-        if self._md_data_identification:
-            if self._md_data_identification.equivalent_scale is not None and self._md_data_identification.equivalent_scale > 0:
-                return self._md_data_identification.equivalent_scale, "scaleDenominator"
+        child = self._get_child_identification()
+        if child:
+            if child.equivalent_scale is not None and child.equivalent_scale > 0:
+                return child.equivalent_scale, "scaleDenominator"
             elif self.ground_res is not None and self.ground_res > 0:
-                return self._md_data_identification.ground_res, "groundDistance"
-        if self._sv_service_identification:
-            if self._sv_service_identification.equivalent_scale is not None and self._sv_service_identification.equivalent_scale > 0:
-                return self._sv_service_identification.equivalent_scale, "scaleDenominator"
-            elif self.ground_res is not None and self.ground_res > 0:
-                return self._sv_service_identification.ground_res, "groundDistance"
+                return child.ground_res, "groundDistance"
 
     @property
     def spatial_res_type(self):
@@ -363,6 +361,18 @@ class MdMetadata(BaseIsoMetadata):
     def spatial_res_value(self, value):
         # TODO
         raise NotImplementedError()
+
+    @property
+    def dataset_id(self) -> str:
+        child = self._get_child_identification()
+        if child:
+            return child.dataset_id
+
+    @property
+    def dataset_id_code_space(self) -> str:
+        child = self._get_child_identification()
+        if child:
+            return child.dataset_id_code_space
 
 
 class WrappedIsoMetadata(xmlmap.XmlObject):

@@ -19,10 +19,22 @@ class MDMetadataTestCase(SimpleTestCase):
         self.parsed_metadata: MdMetadata = load_xmlobject_from_file(
             self.path, xmlclass=MdMetadata)
 
-    def test_base_mapper(self):
+    def test_file_identifier(self):
         self.assertEqual(
             self.parsed_metadata.file_identifier,
             "de.dwd.geoserver.fach.RBSN_FF"
+        )
+
+    def test_dataset_id(self):
+        self.assertEqual(
+            self.parsed_metadata.dataset_id,
+            "de.dwd.geoserver.fach.RBSN_FF"
+        )
+
+    def test_dataset_id_code_space(self):
+        self.assertEqual(
+            self.parsed_metadata.dataset_id_code_space,
+            "https://registry.gdi-de.org/id/de.bund.dwd/"
         )
 
     def test_date_stamp(self):

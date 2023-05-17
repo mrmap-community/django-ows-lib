@@ -24,6 +24,7 @@
     "*.yaml": "home-assistant"
   },
   "sonarlint.connectedMode.project": {
+    "connectionId": "mrmap-community",
     "projectKey": "mrmap-community_django-ows-lib"
   }
 }
