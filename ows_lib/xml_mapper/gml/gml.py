@@ -7,7 +7,7 @@ class Gml(xmlmap.XmlObject):
     srs_name = xmlmap.StringField(xpath="./@srsName")
 
     @property
-    def geos(self) -> GEOSGeometry:
+    def to_geometry(self) -> GEOSGeometry:
         geometry = GEOSGeometry.from_gml(self.serialize())
         if self.srs_name:
             _, srid = get_epsg_srid(self.srs_name)

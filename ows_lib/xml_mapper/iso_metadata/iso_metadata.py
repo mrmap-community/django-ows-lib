@@ -53,7 +53,7 @@ class EXGeographicBoundingBox(xmlmap.XmlObject):
     _max_y = xmlmap.FloatField(xpath="gmd:northBoundLatitude/gco:Decimal")
 
     @property
-    def bounding_box(self) -> GeosPolygon:
+    def geometry(self) -> GeosPolygon:
         if self._min_x and self._max_x and self._min_y and self._max_y:
             return GeosPolygon(((self._min_x, self._min_y),
                                (self._min_x, self._max_y),
@@ -61,8 +61,8 @@ class EXGeographicBoundingBox(xmlmap.XmlObject):
                                (self._max_x, self._min_y),
                                (self._min_x, self._min_y)))
 
-    @bounding_box.setter
-    def bounding_box(self, value: GeosPolygon):
+    @geometry.setter
+    def geometry(self, value: GeosPolygon):
         self._min_x = value.extent[0]
         self._min_y = value.extent[1]
         self._max_x = value.extent[2]
@@ -74,18 +74,24 @@ class EXBoundingPolygon(xmlmap.XmlObject):
     ROOT_NAME = "EX_BoundingPolygon"
     ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE)])
 
-    geometry_list = xmlmap.NodeListField(xpath="gmd:polygon",
-                                         node_class=Gml)
+    _geometry_list = xmlmap.NodeListField(xpath="gmd:polygon",
+                                          node_class=Gml)
 
-    def get_geometries(self):
+    @property
+    def geometries(self) -> MultiPolygon:
         """Return all founded gml geometries as a list of geos geometries.
-        :return: a list of geos geometries
-        :rtype: list
+        :return: 
+        :rtype: MultiPolygon
         """
         geometries = []
-        for geometry in self.geometry_list:
-            geometries.append(geometry.to_gml())
-        return geometries
+        for geometry in self._geometry_list:
+            geometries.append(geometry.to_geometry())
+        return MultiPolygon(geometries)
+
+    @geometries.setter
+    def geometries(self, value):
+        # TODO
+        raise NotImplementedError()
 
 
 class ReferenceSystem(CustomXmlObject, xmlmap.XmlObject):
@@ -201,14 +207,6 @@ class BasicInformation(BaseIsoMetadata):
     def dataset_id_code_space(self) -> str:
         return self._parse_identifier()[1]
 
-    def get_bounding_geometry(self):
-        polygon_list = []
-        for bbox in self.bbox_lat_lon_list:  # noqa xmlmap.NodeListField provide iterator
-            polygon_list.append(bbox.to_polygon())
-        for polygon in self.bounding_polygon_list:  # noqa xmlmap.NodeListField provide iterator
-            polygon_list.extend(polygon.get_geometries())
-        return MultiPolygon(polygon_list)
-
 
 class MdDataIdentification(BasicInformation):
     ROOT_NAME = "MD_DataIdentification"
@@ -316,13 +314,23 @@ class MdMetadata(BaseIsoMetadata):
 
     @property
     def bounding_geometry(self):
+        child = None
         if self._md_data_identification:
-            return self._md_data_identification.get_bounding_geometry()
+            child = self._md_data_identification
         elif self.sv_service_identification:
-            return self._sv_service_identification.get_bounding_geometry()
+            child = self._sv_service_identification
+        if child:
+            polygon_list = []
+            for bbox in child.bbox_lat_lon_list:
+                polygon_list.append(bbox.geometry)
+            for polygon in child.bounding_polygon_list:
+                polygon_list.extend(polygon.geometries)
+            return MultiPolygon(polygon_list)
 
     @bounding_geometry.setter
     def bounding_geometry(self, value: MultiPolygon):
+        bbox = value.convex_hull
+        bounding_polygons = value
         # TODO
         raise NotImplementedError()
 
