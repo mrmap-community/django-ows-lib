@@ -17,7 +17,7 @@ Added
 Changed
 ~~~~~~~
 
-* refactors xml mapper for iso metadata 
+* refactors xml mapper for iso metadata to implement a better abstraction view on it 
 
 
 [v0.1.2] - 2023-05-16
