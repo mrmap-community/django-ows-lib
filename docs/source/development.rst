@@ -47,7 +47,7 @@ To install all dependencies to contribute to this project run the command below:
 
 
 
-4. Create a dummy Django project and app to be able to use aund test django-ows-lib
+4. Create a dummy Django project and app to be able to use and test django-ows-lib
 -----------------------------------------------------------------------------------
 
 .. code-block:: bash
@@ -159,7 +159,7 @@ To install all dependencies to contribute to this project run the command below:
 
     $ python manage.py test_ows_lib
 
-.. note:: It should give back "Requesting a CSW via django-ows-lib:" and the GetRecordById respone
+.. note:: It should give back "Requesting a CSW via django-ows-lib:" and the GetRecordById respones
 
 
 
