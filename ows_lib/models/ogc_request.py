@@ -19,16 +19,16 @@ class OGCRequest(Request):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._params_lower: dict = {}
-        self._ogc_query_params: dict = {}
+        self._ogc_query_params: Dict = {}
         self._bbox: GEOSGeometry = None
         self._requested_entities: List[str] = []
         self._xml_request: XmlObject = None
 
         if self.method == "GET":
-            self.operation: str = self.params_lower.get("request", "")
-            self.service_version: str = self.params_lower.get("version", "")
-            self.service_type: str = self.params_lower.get("service", "")
+            self.operation: str = self.ogc_query_params.get("REQUEST", "")
+            self.service_version: str = self.ogc_query_params.get(
+                "VERSION", "")
+            self.service_type: str = self.ogc_query_params.get("SERVICE", "")
         elif self.method == "POST":
             post_request: PostRequest = load_xmlobject_from_string(
                 string=self.data, xmlclass=PostRequest)
@@ -49,12 +49,12 @@ class OGCRequest(Request):
         if not self._requested_entities:
             if self.is_wms:
                 self._requested_entities.extend(
-                    get_requested_layers(params=self.params_lower))
+                    get_requested_layers(params=self.ogc_query_params))
             else:
                 if self.is_get_feature_request:
                     if self.is_get:
                         self._requested_entities.extend(
-                            get_requested_feature_types(params=self.params_lower))
+                            get_requested_feature_types(params=self.ogc_query_params))
                     elif self.is_post:
                         self._requested_entities.extend(
                             self.xml_request.requested_feature_types)
@@ -103,7 +103,7 @@ class OGCRequest(Request):
         :return: true if this is a get capabilities request
         :rtype: bool
         """
-        return self.operation.lower() == OGCOperationEnum.GET_CAPABILITIES.value.lower()
+        return self.operation == OGCOperationEnum.GET_CAPABILITIES.value
 
     @property
     def is_get_map_request(self) -> bool:
@@ -112,7 +112,7 @@ class OGCRequest(Request):
         :return: true if this is a wms get map request
         :rtype: bool
         """
-        return self.operation.lower() == OGCOperationEnum.GET_MAP.value.lower()
+        return self.operation == OGCOperationEnum.GET_MAP.value
 
     @property
     def is_get_feature_info_request(self) -> bool:
@@ -121,7 +121,7 @@ class OGCRequest(Request):
         :return: true if this is a wfs tranasction request
         :rtype: bool
         """
-        return self.operation.lower() == OGCOperationEnum.GET_FEATURE_INFO.value.lower()
+        return self.operation == OGCOperationEnum.GET_FEATURE_INFO.value
 
     @property
     def is_get_feature_request(self) -> bool:
@@ -130,7 +130,7 @@ class OGCRequest(Request):
         :return: true if this is a wfs get feature request
         :rtype: bool
         """
-        return self.operation.lower() == OGCOperationEnum.GET_FEATURE.value.lower()
+        return self.operation == OGCOperationEnum.GET_FEATURE.value
 
     @property
     def is_transaction_request(self) -> bool:
@@ -139,7 +139,7 @@ class OGCRequest(Request):
         :return: true if this is a wfs tranasction request
         :rtype: bool
         """
-        return self.operation.lower() == OGCOperationEnum.TRANSACTION.value.lower()
+        return self.operation == OGCOperationEnum.TRANSACTION.value
 
     @property
     def bbox(self) -> GEOSGeometry:
@@ -156,24 +156,16 @@ class OGCRequest(Request):
         if not self._bbox:
             try:
                 self._bbox = construct_polygon_from_bbox_query_param(
-                    get_dict=self.params_lower)
+                    get_dict=self.ogc_query_params)
             except (MissingBboxParam, MissingServiceParam):
                 # only to avoid error while handling sql in service property
                 self._bbox = GEOSGeometry("POLYGON EMPTY")
         return self._bbox
 
     @property
-    def params_lower(self) -> Dict:
-        """Lower case key mapper for paramas
-
-        :return: all parameters of the request in lower case key
-        :rtype: Dict
-        """
-        return {k.lower(): v for k, v in self.params.items()} if not self._params_lower else self._params_lower
-
-    @property
     def ogc_query_params(self) -> Dict:
         """ Parses the GET parameters into all member variables, which can be found in a ogc request.
+
         :return: all ogc query parameters
         :rtype: Dict
         """
@@ -182,8 +174,18 @@ class OGCRequest(Request):
                           "OUTPUTFORMAT", "SRS", "CRS", "SRSNAME", "WIDTH", "HEIGHT",
                           "TRANSPARENT", "EXCEPTIONS", "BGCOLOR", "TIME", "ELEVATION",
                           "QUERY_LAYERS", "INFO_FORMAT", "FEATURE_COUNT", "I", "J"]
-            self._ogc_query_params = {key: self.params_lower.get(
-                key, self.params_lower.get(key.lower())) for key in query_keys}
+
+            for key in query_keys:
+                value = self.params.get(key, self.params.get(key.lower(), ""))
+
+                if value:
+                    if isinstance(value, list):
+                        # if multiple values are passed in multiple queryparams, we pick the first item
+                        value = value[0]
+
+                    self._ogc_query_params.update({
+                        key: value
+                    })
 
         return self._ogc_query_params
 
