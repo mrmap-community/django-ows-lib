@@ -7,14 +7,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-[unreleased] - 2023-xx-xx
+[v0.3.0] - 2023-05-25
 -------------------------
 
 Changed
 ~~~~~~~
 
-* improves development documentation
+* improves development documentation section
+* `ogc_query_params` now can handle multi value queryparams and only returns ogc queryparams that are present with a value.
 
+Removed 
+~~~~~~~
+
+* `params_lower` property from `OGCRequest` model.
 
 
 [v0.2.0] - 2023-05-17
