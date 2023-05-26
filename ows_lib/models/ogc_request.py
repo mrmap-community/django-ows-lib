@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from django.contrib.gis.geos import GEOSGeometry
+from django.http.request import HttpRequest as DjangoRequest
 from eulxml.xmlmap import XmlObject, load_xmlobject_from_string
 from requests import Request
 
@@ -17,8 +18,9 @@ from ows_lib.xml_mapper.xml_requests.wfs.get_feature import (GetFeatureRequest,
 class OGCRequest(Request):
     """Extended Request class which provides some analyzing functionality for ogc requests."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, django_request: DjangoRequest = None, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self._djano_request = django_request
         self._ogc_query_params: Dict = {}
         self._bbox: GEOSGeometry = None
         self._requested_entities: List[str] = []
@@ -36,6 +38,19 @@ class OGCRequest(Request):
             self.operation: str = post_request.operation
             self.service_version: str = post_request.version
             self.service_type: str = post_request.service_type
+
+    @classmethod
+    def from_django_request(cls, request: DjangoRequest):
+        """helper function to construct an OGCRequest from a django request object."""
+        ogc_request = cls(
+            method=request.method,
+            url=request.build_absolute_uri(),
+            params={**request.GET, **request.POST},
+            data=request.body,
+            cookies=request.COOKIES,
+            django_request=request
+        )
+        return ogc_request
 
     @property
     def requested_entities(self) -> List[str]:
