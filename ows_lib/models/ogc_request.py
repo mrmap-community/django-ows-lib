@@ -45,7 +45,7 @@ class OGCRequest(Request):
         ogc_request = cls(
             method=request.method,
             url=request.build_absolute_uri(),
-            params=request.GET | request.POST,
+            params=request.GET + request.POST,
             data=request.body,
             cookies=request.COOKIES,
             django_request=request
