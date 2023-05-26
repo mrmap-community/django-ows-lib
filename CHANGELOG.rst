@@ -7,6 +7,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+
+
+[v0.4.1] - 2023-05-26
+---------------------
+
+Fixed
+~~~~~
+
+* Undefined namespace prefix on `md_metadata.file_identifer` attribute
+
+
 [v0.4.0] - 2023-05-26
 ---------------------
 
@@ -53,7 +64,7 @@ Added
 
 * test cases for `get_import_path_for_xml_mapper` function
 
-Fixes
+Fixed
 ~~~~~
 
 * fixes wrong version missmatching in `get_import_path_for_xml_mapper` function
@@ -61,7 +72,7 @@ Fixes
 [v0.1.1] - 2023-05-15
 ---------------------
 
-Fixes
+Fixed
 ~~~~~
 
 * pip install requirements by adding the requirements from .requirements/base.txt

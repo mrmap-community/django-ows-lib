@@ -283,6 +283,7 @@ class MdMetadata(BaseIsoMetadata):
     ROOT_NS = GMD_NAMESPACE
     ROOT_NAMESPACES = {
         "gmd": GMD_NAMESPACE,
+        "gco": GCO_NAMESPACE
     }
 
     file_identifier = xmlmap.StringField(
@@ -308,6 +309,14 @@ class MdMetadata(BaseIsoMetadata):
             return self._md_data_identification
         elif self._sv_service_identification:
             return self._sv_service_identification
+
+    @property
+    def is_dataset(self):
+        return self._hierarchy_level == "dataset"
+
+    @property
+    def is_service(self):
+        return self._hierarchy_level == "service"
 
     @property
     def date_stamp(self):
