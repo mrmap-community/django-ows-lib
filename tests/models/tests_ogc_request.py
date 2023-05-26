@@ -13,6 +13,26 @@ class OGCRequestTest(SimpleTestCase):
     def setUp(self) -> None:
         self.factory = RequestFactory()
 
+    def test_ogc_request_from_django_request(self):
+
+        django_request = self.factory.get(
+            "http://mrmap-proxy/wms/cd16cc1f-3abb-4625-bb96-fbe80dbe23e3/",
+            {
+                "REQUEST": ["GetMap"],
+                "SERVICE": "WMS",
+                "VERSION": "1.3.0",
+                "LAYERS": "somelayer,anotherlayer"
+            }
+        )
+        ogc_request = OGCRequest.from_django_request(django_request)
+
+        self.assertEqual(django_request, ogc_request._djano_request)
+        self.assertTrue(ogc_request.is_get)
+        self.assertTrue(ogc_request.is_get_map_request)
+        self.assertEqual(["somelayer", "anotherlayer"],
+                         ogc_request.requested_entities)
+        ogc_request.prepare()
+
     def test_ogc_request_with_get_map_request(self):
         """Test that OGCRequest helper class works correctly for a given GetMap get request"""
 
