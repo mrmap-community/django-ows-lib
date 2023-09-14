@@ -289,8 +289,15 @@ class MdMetadata(BaseIsoMetadata):
     file_identifier = xmlmap.StringField(
         xpath="gmd:fileIdentifier/gco:CharacterString")
     # language = xmlmap.StringField(xpath=f"{NS_WC}identificationInfo']//{NS_WC}language']/{NS_WC}LanguageCode']")
+
+    # TODO: add a default value such as http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_ScopeCode for example?
+    _hierarchy_level_code_list = xmlmap.StringField(
+        xpath="gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeList"
+
+    )
     _hierarchy_level = xmlmap.StringField(
-        xpath="gmd:hierarchyLevel/gmd:MD_ScopeCode[@codeList='http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_ScopeCode']/@codeListValue")
+        xpath="gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue")
+
     _date_stamp_date = xmlmap.DateField(xpath="gmd:dateStamp/gco:Date")
     _date_stamp_date_time = xmlmap.DateTimeField(
         xpath="gmd:dateStamp/gco:DateTime")

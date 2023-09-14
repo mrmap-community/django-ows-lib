@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[v0.4.2] - 2023-09-14
+---------------------
+
+Fixed
+~~~~~
+
+* removes specific xpath of `_hierachy_level` which depends on `codeList` attribute to collect the codeListValue anyway
+
 
 [v0.4.1] - 2023-05-26
 ---------------------
