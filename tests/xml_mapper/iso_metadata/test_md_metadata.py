@@ -6,7 +6,8 @@ from django.contrib.gis.geos import Polygon as GeosPolygon
 from django.test import SimpleTestCase
 from eulxml.xmlmap import load_xmlobject_from_file
 
-from ows_lib.xml_mapper.iso_metadata.iso_metadata import MdMetadata
+from ows_lib.xml_mapper.iso_metadata.iso_metadata import (MdMetadata,
+                                                          WrappedIsoMetadata)
 from tests.settings import DJANGO_TEST_ROOT_DIR
 
 
@@ -58,3 +59,28 @@ class MDMetadataTestCase(SimpleTestCase):
                                       (max_x, min_y),
                                       (min_x, min_y))))
         )
+
+
+class WrappedMDMetadataTestCase(SimpleTestCase):
+
+    path = os.path.join(DJANGO_TEST_ROOT_DIR,
+                        "test_data/iso_metadata/wrapped_dataset.xml")
+
+    def setUp(self) -> None:
+        self.parsed_metadata: MdMetadata = load_xmlobject_from_file(
+            self.path, xmlclass=WrappedIsoMetadata).iso_metadata[0]
+
+    def test_field_dict(self):
+        self.assertEqual(
+            self.parsed_metadata.date_stamp,
+            datetime.fromisoformat("2023-09-12T06:49:23")
+        )
+
+        field_dict = self.parsed_metadata.transform_to_model()
+        expected = {
+            'file_identifier': '80b250a6-4dda-481d-8568-162e20c1cb7a',
+            'date_stamp': datetime(2023, 9, 12, 6, 49, 23),
+            'dataset_id': 'LK2022',
+            'bounding_geometry': GeosPolygon.from_ewkt("MULTIPOLYGON (((9.87 50.2, 9.87 51.64, 12.65 51.64, 12.65 50.2, 9.87 50.2)))")
+        }
+        self.assertEqual(field_dict, expected)

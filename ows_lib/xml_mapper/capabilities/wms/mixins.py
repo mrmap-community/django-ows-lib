@@ -85,7 +85,7 @@ class TimeExtent:
         return f"{self.start} | {self.stop} | {self.resolution}"
 
     def transform_to_model(self) -> Dict:
-        attr = {}
+        attr = super().transform_to_model()
         if self.start:
             attr.update({"start": self.start})
         if self.stop:
