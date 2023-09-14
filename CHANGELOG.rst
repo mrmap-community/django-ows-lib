@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+
+[v0.5.0] - 2023-09-14
+---------------------
+
+Changed
+~~~~~~~
+
+* call `super().transform_to_model()` in all child objects to get the default `field_dict`
+
+Added
+~~~~~
+
+* custom `transform_to_model` function on `MdMetadata` mapper to push in the collected values
+
+
 [v0.4.2] - 2023-09-14
 ---------------------
 

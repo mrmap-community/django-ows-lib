@@ -2,9 +2,7 @@ import os
 from pathlib import Path
 
 from django.test import SimpleTestCase
-from eulxml.xmlmap import load_xmlobject_from_file
 
-from ows_lib.xml_mapper.capabilities.wfs.wfs200 import WebFeatureService
 from ows_lib.xml_mapper.utils import (get_import_path_for_xml_mapper,
                                       get_xml_mapper)
 from tests.settings import DJANGO_TEST_ROOT_DIR

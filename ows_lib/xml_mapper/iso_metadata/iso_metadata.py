@@ -1,4 +1,5 @@
 import urllib
+from typing import Dict
 
 from django.contrib.gis.geos import MultiPolygon
 from django.contrib.gis.geos import Polygon as GeosPolygon
@@ -357,12 +358,13 @@ class MdMetadata(BaseIsoMetadata):
         if child:
             if child.equivalent_scale is not None and child.equivalent_scale > 0:
                 return child.equivalent_scale, "scaleDenominator"
-            elif self.ground_res is not None and self.ground_res > 0:
+            elif child.ground_res is not None and child.ground_res > 0:
                 return child.ground_res, "groundDistance"
 
     @property
     def spatial_res_type(self):
-        return self.get_spatial_res()[0]
+        res = self.get_spatial_res()
+        return res[0] if res else None
 
     @spatial_res_type.setter
     def spatial_res_type(self, value):
@@ -371,7 +373,8 @@ class MdMetadata(BaseIsoMetadata):
 
     @property
     def spatial_res_value(self):
-        return self.get_spatial_res()[1]
+        res = self.get_spatial_res()
+        return res[1] if res else None
 
     @spatial_res_value.setter
     def spatial_res_value(self, value):
@@ -389,6 +392,20 @@ class MdMetadata(BaseIsoMetadata):
         child = self._get_child_identification()
         if child:
             return child.dataset_id_code_space
+
+    def transform_to_model(self) -> Dict:
+        attr = super().transform_to_model()
+        if self.date_stamp:
+            attr.update({"date_stamp": self.date_stamp})
+        if self.dataset_id:
+            attr.update({"dataset_id": self.dataset_id})
+        if self.dataset_id_code_space:
+            attr.update({"dataset_id_code_space": self.dataset_id_code_space})
+        if self.spatial_res_value:
+            attr.update({"spatial_res_value": self.spatial_res_value})
+        if self.bounding_geometry:
+            attr.update({"bounding_geometry": self.bounding_geometry})
+        return attr
 
 
 class WrappedIsoMetadata(xmlmap.XmlObject):

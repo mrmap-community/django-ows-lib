@@ -62,7 +62,7 @@ class OperationUrl:
             self._callback(self)
 
     def transform_to_model(self) -> Dict:
-        attr = {}
+        attr = super().transform_to_model()
         if self.operation:
             attr.update({"operation": self.operation})
         if self.url:
@@ -120,7 +120,7 @@ class ReferenceSystemMixin:
         self._ref_system = f"{new_prefix}:{self._code}"
 
     def transform_to_model(self) -> Dict:
-        attr = {}
+        attr = super().transform_to_model()
         if self.prefix:
             attr.update({"prefix": self.prefix})
         if self.code:
