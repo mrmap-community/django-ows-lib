@@ -62,7 +62,7 @@ class OperationUrl:
             self._callback(self)
 
     def transform_to_model(self) -> Dict:
-        attr = super().transform_to_model()
+        attr = {}
         if self.operation:
             attr.update({"operation": self.operation})
         if self.url:
