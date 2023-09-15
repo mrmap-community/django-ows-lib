@@ -364,7 +364,7 @@ class MdMetadata(BaseIsoMetadata):
     @property
     def spatial_res_type(self):
         res = self.get_spatial_res()
-        return res[0] if res else None
+        return res[1] if res else None
 
     @spatial_res_type.setter
     def spatial_res_type(self, value):
@@ -374,7 +374,7 @@ class MdMetadata(BaseIsoMetadata):
     @property
     def spatial_res_value(self):
         res = self.get_spatial_res()
-        return res[1] if res else None
+        return res[0] if res else None
 
     @spatial_res_value.setter
     def spatial_res_value(self, value):
