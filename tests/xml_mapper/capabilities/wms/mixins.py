@@ -2,6 +2,7 @@ from django.contrib.gis.geos import Polygon
 from eulxml.xmlmap import load_xmlobject_from_file
 from isodate.isodatetime import parse_datetime
 from isodate.isoduration import parse_duration
+
 from ows_lib.xml_mapper.capabilities.mixins import OperationUrl
 from ows_lib.xml_mapper.capabilities.wms.mixins import TimeExtent
 from ows_lib.xml_mapper.capabilities.wms.wms130 import Layer
@@ -233,6 +234,11 @@ class WebMapServiceTestCase:
         self.assertEqual(
             self.parsed_capabilities.root_layer.reference_systems[0].prefix,
             "EPSG"
+        )
+        self.assertDictEqual(
+            self.parsed_capabilities.root_layer.reference_systems[0].transform_to_model(
+            ),
+            {"code": "3044", "prefix": "EPSG"}
         )
 
         self.assertEqual(
