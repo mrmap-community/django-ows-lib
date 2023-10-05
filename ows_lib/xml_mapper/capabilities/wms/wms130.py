@@ -1,5 +1,6 @@
 from eulxml.xmlmap import (FloatField, IntegerField, NodeField, NodeListField,
                            SimpleBooleanField, StringField, StringListField)
+
 from ows_lib.xml_mapper.capabilities.mixins import (OGCServiceTypeMixin,
                                                     ReferenceSystemMixin)
 from ows_lib.xml_mapper.capabilities.wms.mixins import (LayerMixin,
@@ -35,14 +36,14 @@ class ServiceMetadataContact(WebMapServiceDefaultSettings):
     address = StringField(xpath="./wms:ContactAddress/wms:Address")
 
 
-class ServiceType(WebMapServiceDefaultSettings, OGCServiceTypeMixin):
+class ServiceType(OGCServiceTypeMixin, WebMapServiceDefaultSettings):
     ROOT_NAME = "WMS_Capabilities/@version='1.3.0'"
 
     version = StringField(xpath="./@version", choices='1.3.0')
     _name = StringField(xpath="./wms:Service/wms:Name")
 
 
-class TimeDimension(WebMapServiceDefaultSettings, TimeDimensionMixin):
+class TimeDimension(TimeDimensionMixin, WebMapServiceDefaultSettings):
     """ Time Dimension in ISO8601 format"""
 
     ROOT_NAME = "Dimension[@name='time']"
@@ -53,7 +54,7 @@ class TimeDimension(WebMapServiceDefaultSettings, TimeDimensionMixin):
     _extent = StringField(xpath="./text()")
 
 
-class ReferenceSystem(WebMapServiceDefaultSettings, ReferenceSystemMixin):
+class ReferenceSystem(ReferenceSystemMixin, WebMapServiceDefaultSettings):
     ROOT_NAME = "CRS"
 
     _ref_system = StringField(xpath=".")
@@ -88,7 +89,7 @@ class RemoteMetadata(WebMapServiceDefaultSettings):
         xpath="./@xlink:href")
 
 
-class Layer(WebMapServiceDefaultSettings, LayerMixin):
+class Layer(LayerMixin, WebMapServiceDefaultSettings):
     ROOT_NAME = "Layer"
 
     title = StringField(xpath="./wms:Title")
@@ -126,7 +127,7 @@ class Layer(WebMapServiceDefaultSettings, LayerMixin):
         node_class=RemoteMetadata)
 
 
-class WebMapService(WebMapServiceDefaultSettings, WebMapServiceMixin):
+class WebMapService(WebMapServiceMixin, WebMapServiceDefaultSettings):
     ROOT_NAME = "WMS_Capabilities/@version='1.3.0'"
     XSD_SCHEMA = "https://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd"
 

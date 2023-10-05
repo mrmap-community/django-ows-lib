@@ -1,4 +1,5 @@
 from eulxml.xmlmap import NodeField, StringField, StringListField
+
 from ows_lib.xml_mapper.capabilities.mixins import (OGCServiceMixin,
                                                     OGCServiceTypeMixin)
 from ows_lib.xml_mapper.mixins import CustomXmlObject
@@ -39,14 +40,14 @@ class ServiceMetadataContact(CatalogueServiceDefaultSettings):
         xpath="./ows:ServiceContact/ows:ContactInfo/ows:Address/ows:DeliveryPoint")
 
 
-class ServiceType(CatalogueServiceDefaultSettings, OGCServiceTypeMixin):
+class ServiceType(OGCServiceTypeMixin, CatalogueServiceDefaultSettings):
     ROOT_NAME = "csw:Capabilities/@version='2.0.2'"
 
     version = StringField(xpath="./@version", choices='2.0.2')
     _name = StringField(xpath="./ows:ServiceIdentification/ows:ServiceType")
 
 
-class CatalogueService(CatalogueServiceDefaultSettings, OGCServiceMixin):
+class CatalogueService(OGCServiceMixin, CatalogueServiceDefaultSettings):
     ROOT_NAME = "csw:Capabilities/@version='2.0.2'"
     XSD_SCHEMA = "http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd"
 
@@ -57,14 +58,16 @@ class CatalogueService(CatalogueServiceDefaultSettings, OGCServiceMixin):
     title = StringField(xpath="./csw:ServiceIdentification/ows:Title")
     abstract = StringField(xpath="./csw:ServiceIdentification/ows:Abstract")
     fees = StringField(xpath="./csw:ServiceIdentification/ows:Fees")
-    access_constraints = StringField(xpath="./csw:ServiceIdentification/ows:AccessConstraints")
+    access_constraints = StringField(
+        xpath="./csw:ServiceIdentification/ows:AccessConstraints")
 
     # ForeignKey
     service_contact = NodeField(xpath="./ows:ServiceProvider",
                                 node_class=ServiceMetadataContact)
 
     # ManyToManyField
-    keywords = StringListField(xpath="./csw:ServiceIdentification/ows:Keywords/ows:Keyword")
+    keywords = StringListField(
+        xpath="./csw:ServiceIdentification/ows:Keywords/ows:Keyword")
 
     # cause the information of operation urls are stored as entity name inside the xpath, we need to parse every operation url seperate.
     # To simplify the access of operation_urls we write a custom getter and setter property for it.

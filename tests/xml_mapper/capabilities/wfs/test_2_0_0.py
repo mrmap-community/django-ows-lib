@@ -3,6 +3,7 @@ import os
 from django.contrib.gis.geos import Polygon
 from django.test import SimpleTestCase
 from eulxml.xmlmap import load_xmlobject_from_file
+
 from ows_lib.xml_mapper.capabilities.mixins import OperationUrl
 from ows_lib.xml_mapper.capabilities.wfs.wfs200 import WebFeatureService
 from ows_lib.xml_mapper.namespaces import (OWS_1_1_NAMESPACE,
@@ -393,6 +394,12 @@ class WebFeatureServiceTestCase(SimpleTestCase):
         self.assertEqual(
             ft.reference_systems[0].prefix,
             "EPSG"
+        )
+
+        self.assertDictEqual(
+            ft.reference_systems[0].transform_to_model(
+            ),
+            {"code": "4258", "prefix": "EPSG"}
         )
 
         self.assertEqual(

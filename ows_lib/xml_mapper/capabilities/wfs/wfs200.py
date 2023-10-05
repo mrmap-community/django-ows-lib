@@ -1,5 +1,6 @@
 from eulxml.xmlmap import (NodeField, NodeListField, StringField,
                            StringListField)
+
 from ows_lib.xml_mapper.capabilities.mixins import (OGCServiceTypeMixin,
                                                     ReferenceSystemMixin)
 from ows_lib.xml_mapper.capabilities.wfs.mixins import (FeatureTypeMixin,
@@ -47,14 +48,14 @@ class ServiceMetadataContact(WebFeatureServiceDefaultSettings):
         xpath="./ows:ServiceContact/ows:ContactInfo/ows:Address/ows:DeliveryPoint")
 
 
-class ServiceType(WebFeatureServiceDefaultSettings, OGCServiceTypeMixin):
+class ServiceType(OGCServiceTypeMixin, WebFeatureServiceDefaultSettings):
     ROOT_NAME = "WFS_Capabilities/@version='2.0.0'"
 
     version = StringField(xpath="./@version", choices='2.0.0')
     _name = StringField(xpath="./ows:ServiceIdentification/ows:ServiceType")
 
 
-class ReferenceSystem(WebFeatureServiceDefaultSettings, ReferenceSystemMixin):
+class ReferenceSystem(ReferenceSystemMixin, WebFeatureServiceDefaultSettings):
     _ref_system = StringField(xpath=".")
 
 
@@ -78,7 +79,7 @@ class RemoteMetadata(WebFeatureServiceDefaultSettings):
     link = StringField(xpath="./@xlink:href")
 
 
-class FeatureType(WebFeatureServiceDefaultSettings, FeatureTypeMixin):
+class FeatureType(FeatureTypeMixin, WebFeatureServiceDefaultSettings):
     ROOT_NAME = "FeatureType"
 
     identifier = StringField(xpath="./wfs:Name")
@@ -106,7 +107,7 @@ class FeatureType(WebFeatureServiceDefaultSettings, FeatureTypeMixin):
     keywords = StringListField(xpath="./ows:Keywords/ows:Keyword")
 
 
-class WebFeatureService(WebFeatureServiceDefaultSettings, WebFeatureServiceMixin):
+class WebFeatureService(WebFeatureServiceMixin, WebFeatureServiceDefaultSettings):
     ROOT_NAME = "WFS_Capabilities"
     XSD_SCHEMA = "http://www.opengis.net/wfs/2.0"
 
