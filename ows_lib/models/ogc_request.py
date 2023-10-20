@@ -94,6 +94,15 @@ class OGCRequest(Request):
         return self.service_type.lower() == 'wfs'
 
     @property
+    def is_csw(self) -> bool:
+        """Check for wfs request
+
+        :return: true if this is a wfs request
+        :rtype: bool
+        """
+        return self.service_type.lower() == 'csw'
+
+    @property
     def is_post(self) -> bool:
         """Check for post method
 
@@ -157,6 +166,18 @@ class OGCRequest(Request):
         return self.operation == OGCOperationEnum.TRANSACTION.value
 
     @property
+    def is_describe_record_request(self) -> bool:
+        return self.operation == OGCOperationEnum.DESCRIBE_RECORD.value
+
+    @property
+    def is_get_record_by_id_request(self) -> bool:
+        return self.operation == OGCOperationEnum.GET_RECORD_BY_ID.value
+
+    @property
+    def is_get_records_request(self) -> bool:
+        return self.operation == OGCOperationEnum.GET_RECORDS.value
+
+    @property
     def bbox(self) -> GEOSGeometry:
         """Analyzes the given request and tries to construct a Polygon from the query parameters.
 
@@ -188,7 +209,11 @@ class OGCRequest(Request):
             query_keys = ["SERVICE", "REQUEST", "LAYERS", "BBOX", "VERSION", "FORMAT",
                           "OUTPUTFORMAT", "SRS", "CRS", "SRSNAME", "WIDTH", "HEIGHT",
                           "TRANSPARENT", "EXCEPTIONS", "BGCOLOR", "TIME", "ELEVATION",
-                          "QUERY_LAYERS", "INFO_FORMAT", "FEATURE_COUNT", "I", "J"]
+                          "QUERY_LAYERS", "INFO_FORMAT", "FEATURE_COUNT", "I", "J",
+                          "NAMESPACE", "resultType", "requestId", "TypeName", "outputFormat",
+                          "outputSchema", "startPosition", "maxRecords", "schemaLanguage",
+                          "ElementSetName", "ElementName", "typeNames", "CONSTRAINTLANGUAGE",
+                          "Constraint", "SortBy", "DistributedSearch", "hopCount", "ResponseHandler"]
 
             for key in query_keys:
                 value = self.params.get(key, self.params.get(key.lower(), ""))

@@ -42,4 +42,6 @@ class OGCOperationEnum(Enum):
     # CSW
     GET_RECORDS = "GetRecords"
     DESCRIBE_RECORD = "DescribeRecord"
+    GET_DOMAIN = "GetDomain"
     GET_RECORD_BY_ID = "GetRecordById"
+    HARVEST_RECORDS = "harvestRecords"
