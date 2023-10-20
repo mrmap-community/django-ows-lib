@@ -16,6 +16,13 @@ from ows_lib.xml_mapper.namespaces import (CSW_2_0_2_NAMESPACE,
 class Comparision(XmlObject):
 
     """
+    https://docs.geoserver.org/latest/en/user/filter/filter_reference.html
+
+    example csw: https://gdk.geoportal.hessen.de/pycsw/csw.py?SERVICE=CSW&REQUEST=GetCapabilities&VERSION=2.0.2
+    django query lookups https://docs.djangoproject.com/en/4.2/ref/models/querysets/
+
+
+
     TODO: property_name can be validated by:
     [4] NCName ::= (Letter | '_') (NCNameChar)*
     /* An XML Name, minus the ":" */
