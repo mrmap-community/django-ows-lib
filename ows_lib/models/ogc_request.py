@@ -1,8 +1,15 @@
 from typing import Dict, List
 
 from django.contrib.gis.geos import GEOSGeometry
+from django.db.models.query_utils import Q
 from django.http.request import HttpRequest as DjangoRequest
 from eulxml.xmlmap import XmlObject, load_xmlobject_from_string
+from lark.exceptions import LarkError
+from lxml.etree import XMLSyntaxError
+from pygeofilter.backends.django.evaluate import to_filter
+from pygeofilter.parsers.ecql import parse as parse_ecql
+from pygeofilter.parsers.fes.parser import parse as parse_fes
+from pygeofilter.parsers.fes.util import NodeParsingError
 from requests import Request
 
 from ows_lib.client.enums import OGCOperationEnum
@@ -10,6 +17,9 @@ from ows_lib.client.exceptions import MissingBboxParam, MissingServiceParam
 from ows_lib.client.utils import (construct_polygon_from_bbox_query_param,
                                   get_requested_feature_types,
                                   get_requested_layers)
+from ows_lib.xml_mapper.exceptions import (
+    InvalidParameterValueException,
+    MissingConstraintLanguageParameterException)
 from ows_lib.xml_mapper.xml_requests.utils import PostRequest
 from ows_lib.xml_mapper.xml_requests.wfs.get_feature import (GetFeatureRequest,
                                                              Query)
@@ -75,6 +85,37 @@ class OGCRequest(Request):
                             self.xml_request.requested_feature_types)
         return self._requested_entities
 
+    def filter_constraint(self, field_mapping=None, mapping_choices=None) -> Q:
+        if self.is_csw and self.is_get_records_request:
+            # TODO: handle xml filter provided by post body
+            constraint = self.ogc_query_params.get("Constraint", "")
+            constraint_language = self.ogc_query_params.get(
+                "CONSTRAINTLANGUAGE", "")
+            if constraint and not constraint_language:
+                return MissingConstraintLanguageParameterException(ogc_request=self)
+
+            elif constraint and constraint_language:
+                if constraint_language == "CQL_TEXT":
+                    try:
+                        ast = parse_ecql(constraint)
+                        return to_filter(ast, field_mapping, mapping_choices)
+                    except LarkError as e:
+                        return InvalidParameterValueException(ogc_request=self, message=e)
+                elif constraint_language == "FILTER":
+                    try:
+                        ast = parse_fes(constraint)
+                        return to_filter(ast, field_mapping, mapping_choices)
+                    except (XMLSyntaxError, NodeParsingError) as e:
+                        return InvalidParameterValueException(
+                            ogc_request=self,
+                            message=e
+                        )
+                else:
+                    return InvalidParameterValueException(
+                        ogc_request=self,
+                        message="Provided CONSTRAINTLANGUAGE is not supported.")
+        return Q()
+
     @property
     def is_wms(self) -> bool:
         """Check for wms request
@@ -92,6 +133,15 @@ class OGCRequest(Request):
         :rtype: bool
         """
         return self.service_type.lower() == 'wfs'
+
+    @property
+    def is_csw(self) -> bool:
+        """Check for wfs request
+
+        :return: true if this is a wfs request
+        :rtype: bool
+        """
+        return self.service_type.lower() == 'csw'
 
     @property
     def is_post(self) -> bool:
@@ -157,6 +207,18 @@ class OGCRequest(Request):
         return self.operation == OGCOperationEnum.TRANSACTION.value
 
     @property
+    def is_describe_record_request(self) -> bool:
+        return self.operation == OGCOperationEnum.DESCRIBE_RECORD.value
+
+    @property
+    def is_get_record_by_id_request(self) -> bool:
+        return self.operation == OGCOperationEnum.GET_RECORD_BY_ID.value
+
+    @property
+    def is_get_records_request(self) -> bool:
+        return self.operation == OGCOperationEnum.GET_RECORDS.value
+
+    @property
     def bbox(self) -> GEOSGeometry:
         """Analyzes the given request and tries to construct a Polygon from the query parameters.
 
@@ -188,7 +250,12 @@ class OGCRequest(Request):
             query_keys = ["SERVICE", "REQUEST", "LAYERS", "BBOX", "VERSION", "FORMAT",
                           "OUTPUTFORMAT", "SRS", "CRS", "SRSNAME", "WIDTH", "HEIGHT",
                           "TRANSPARENT", "EXCEPTIONS", "BGCOLOR", "TIME", "ELEVATION",
-                          "QUERY_LAYERS", "INFO_FORMAT", "FEATURE_COUNT", "I", "J"]
+                          "QUERY_LAYERS", "INFO_FORMAT", "FEATURE_COUNT", "I", "J",
+                          "NAMESPACE", "resultType", "requestId", "TypeName", "outputFormat",
+                          "outputSchema", "startPosition", "maxRecords", "schemaLanguage",
+                          "ElementSetName", "ElementName", "typeNames", "CONSTRAINTLANGUAGE",
+                          "Constraint", "SortBy", "DistributedSearch",
+                          "hopCount", "ResponseHandler"]
 
             for key in query_keys:
                 value = self.params.get(key, self.params.get(key.lower(), ""))

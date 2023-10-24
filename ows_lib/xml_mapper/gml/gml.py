@@ -12,5 +12,5 @@ class Gml(xmlmap.XmlObject):
         if self.srs_name:
             _, srid = get_epsg_srid(self.srs_name)
         else:
-            srid = 4326
+            srid = 4326  # default srs
         return GEOSGeometry(geo_input=geometry.wkt, srid=srid)

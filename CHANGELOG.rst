@@ -6,6 +6,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+
+[v0.6.0] - 2023-10-24
+---------------------
+
+Added
+~~~~~
+* on `ogc_request` model:
+    #. `filter_constraint` function to get a django filter from `csw constraint`
+    #. `is_csw` property
+    #. `is_get_records_request` property
+    #. `is_describe_record_request` property
+    #. `is_get_record_by_id_request` property
+
+
 [v0.5.4] - 2023-10-05
 ---------------------
 
