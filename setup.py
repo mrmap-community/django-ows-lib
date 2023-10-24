@@ -19,7 +19,8 @@ REQUIREMENTS = [
     "isodate==0.6.1",
     "camel-converter==3.0.0",
     "requests>=2.23.0,<2.30.0",
-    "pygeofilter>=0.2.1"
+    "pygeofilter>=0.2.1",
+    "pygml>=0.2.2"
 ]
 
 with open("README.rst", "r", encoding="utf-8") as fh:
