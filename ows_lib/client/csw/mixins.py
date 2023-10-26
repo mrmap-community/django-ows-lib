@@ -21,7 +21,7 @@ class CatalogueServiceMixin(OgcClient):
         record_types_filters = [
             f"<ogc:PropertyIsEqualTo><ogc:PropertyName>{type_name}</ogc:PropertyName><ogc:Literal>{record_type}</ogc:Literal></ogc:PropertyIsEqualTo>" for record_type in record_types]
 
-        return f'<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">{"<ogc:Or>" if record_types_filters.len > 1 else ""}{"".join(record_types_filters)}{"</ogc:Or>" if record_types_filters.len > 1 else ""}</ogc:Filter>'
+        return f'<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">{"<ogc:Or>" if record_types_filters.__len__() > 1 else ""}{"".join(record_types_filters)}{"</ogc:Or>" if record_types_filters.__len__() > 1 else ""}</ogc:Filter>'
 
     def get_records_request(
         self,
