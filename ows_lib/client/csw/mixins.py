@@ -1,4 +1,5 @@
 import re
+from typing import List
 
 from ows_lib.client.mixins import OgcClient
 from ows_lib.client.utils import update_queryparams
@@ -15,9 +16,12 @@ class CatalogueServiceMixin(OgcClient):
         else:
             return "type"
 
-    def get_constraint(self, record_type):
+    def get_constraint(self, record_types: List[str]):
         type_name = self.queryable_type_name()
-        return f'<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc"><ogc:PropertyIsEqualTo><ogc:PropertyName>{type_name}</ogc:PropertyName><ogc:Literal>{record_type}</ogc:Literal></ogc:PropertyIsEqualTo></ogc:Filter>'
+        record_types_filters = [
+            f"<ogc:PropertyIsEqualTo><ogc:PropertyName>{type_name}</ogc:PropertyName><ogc:Literal>{record_type}</ogc:Literal></ogc:PropertyIsEqualTo>" for record_type in record_types]
+
+        return f'<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">{"<ogc:Or>" if record_types_filters.len > 1 else ""}{"".join(record_types_filters)}{"</ogc:Or>" if record_types_filters.len > 1 else ""}</ogc:Filter>'
 
     def get_records_request(
         self,
