@@ -16,3 +16,5 @@ OWS_NAMESPACE = "http://www.opengis.net/ows"
 OWS_1_1_NAMESPACE = "http://www.opengis.net/ows/1.1"
 FES_2_0_NAMEPSACE = "http://www.opengis.net/fes/2.0"
 OGC_NAMESPACE = "http://www.opengis.net/ogc"
+
+XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"
