@@ -17,10 +17,14 @@ class CatalogueServiceDefaultSettings(CustomXmlObject):
 
 
 class ServiceMetadataContact(CatalogueServiceDefaultSettings):
-    ROOT_NAME = "ows:ServiceProvider"
+    ROOT_NAME = "ServiceProvider"
+    ROOT_NS = OWS_NAMESPACE
 
-    name = StringField(xpath="./ows:ProviderName")
-    person_name = StringField(xpath="./ows:ServiceContact/ows:IndividualName")
+    name = StringField(
+        xpath="./ows:ProviderName")
+
+    person_name = StringField(
+        xpath="./ows:ServiceContact/ows:IndividualName")
 
     phone = StringField(
         xpath="./ows:ServiceContact/ows:ContactInfo/ows:Phone/ows:Voice")
@@ -41,25 +45,25 @@ class ServiceMetadataContact(CatalogueServiceDefaultSettings):
 
 
 class ServiceType(OGCServiceTypeMixin, CatalogueServiceDefaultSettings):
-    ROOT_NAME = "csw:Capabilities/@version='2.0.2'"
+    ROOT_NAME = "Capabilities"
 
     version = StringField(xpath="./@version", choices='2.0.2')
     _name = StringField(xpath="./ows:ServiceIdentification/ows:ServiceType")
 
 
 class CatalogueService(OGCServiceMixin, CatalogueServiceDefaultSettings):
-    ROOT_NAME = "csw:Capabilities/@version='2.0.2'"
+    ROOT_NAME = "Capabilities"
     XSD_SCHEMA = "http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd"
 
     _possible_operations = ["GetCapabilities", "DescribeRecord",
                             "GetDomain", "GetRecords", "GetRecordById"]
 
     service_type = NodeField(xpath=".", node_class=ServiceType)
-    title = StringField(xpath="./csw:ServiceIdentification/ows:Title")
-    abstract = StringField(xpath="./csw:ServiceIdentification/ows:Abstract")
-    fees = StringField(xpath="./csw:ServiceIdentification/ows:Fees")
+    title = StringField(xpath="./ows:ServiceIdentification/ows:Title")
+    abstract = StringField(xpath="./ows:ServiceIdentification/ows:Abstract")
+    fees = StringField(xpath="./ows:ServiceIdentification/ows:Fees")
     access_constraints = StringField(
-        xpath="./csw:ServiceIdentification/ows:AccessConstraints")
+        xpath="./ows:ServiceIdentification/ows:AccessConstraints")
 
     # ForeignKey
     service_contact = NodeField(xpath="./ows:ServiceProvider",
@@ -67,7 +71,7 @@ class CatalogueService(OGCServiceMixin, CatalogueServiceDefaultSettings):
 
     # ManyToManyField
     keywords = StringListField(
-        xpath="./csw:ServiceIdentification/ows:Keywords/ows:Keyword")
+        xpath="./ows:ServiceIdentification/ows:Keywords/ows:Keyword")
 
     # cause the information of operation urls are stored as entity name inside the xpath, we need to parse every operation url seperate.
     # To simplify the access of operation_urls we write a custom getter and setter property for it.

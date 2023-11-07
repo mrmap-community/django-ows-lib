@@ -7,6 +7,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+[v0.8.1] - 2023-11-7
+---------------------
+
+Fixed
+~~~~~
+
+* fixes csw mapper and test cases which are not running
+
 
 [v0.8.0] - 2023-11-2
 ---------------------
