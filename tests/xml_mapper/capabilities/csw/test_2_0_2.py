@@ -14,7 +14,6 @@ class CatalogueServiceSerializeTestCase(SimpleTestCase):
 
     def test_constuction(self):
         csw_capabilities = CatalogueService()
-        print(csw_capabilities.serializeDocument(pretty=True))
 
 
 class CatalogueServiceDeserializeTestCase(SimpleTestCase):
