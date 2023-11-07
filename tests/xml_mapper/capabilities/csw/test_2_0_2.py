@@ -2,13 +2,21 @@ import os
 
 from django.test import SimpleTestCase
 from eulxml.xmlmap import load_xmlobject_from_file
+
 from ows_lib.xml_mapper.capabilities.csw.csw202 import CatalogueService
 from ows_lib.xml_mapper.capabilities.mixins import OperationUrl
-from ows_lib.xml_mapper.namespaces import WFS_2_0_0_NAMESPACE, XLINK_NAMESPACE
+from ows_lib.xml_mapper.namespaces import (CSW_2_0_2_NAMESPACE, OWS_NAMESPACE,
+                                           XLINK_NAMESPACE)
 from tests.settings import DJANGO_TEST_ROOT_DIR
 
 
-class CatalogueServiceTestCase(SimpleTestCase):
+class CatalogueServiceSerializeTestCase(SimpleTestCase):
+
+    def test_constuction(self):
+        csw_capabilities = CatalogueService()
+
+
+class CatalogueServiceDeserializeTestCase(SimpleTestCase):
 
     path = os.path.join(DJANGO_TEST_ROOT_DIR,
                         "test_data/capabilities/csw/2.0.2.xml")
@@ -44,7 +52,7 @@ class CatalogueServiceTestCase(SimpleTestCase):
         )
         self.assertEqual(
             self.parsed_capabilities.service_contact.person_name,
-            ""
+            "Owesny, Karl"
         )
         self.assertEqual(
             self.parsed_capabilities.service_contact.phone,
@@ -133,27 +141,30 @@ class CatalogueServiceTestCase(SimpleTestCase):
 
         self._test_service_type_mapper()
 
-    def _get_added_get_feature_operation_url(self):
+    def _get_added_get_records_operation_url(self):
         return self.parsed_capabilities.node.xpath(
-            "//wfs:WFS_Capabilities/ows:OperationsMetadata/ows:Operation[@name='GetFeature']/ows:DCP/ows:HTTP/ows:Get/@xlink:href",
+            "//csw:Capabilities/ows:OperationsMetadata/ows:Operation[@name='GetRecords']/ows:DCP/ows:HTTP/ows:Post/@xlink:href",
             namespaces={
-                "wfs": WFS_2_0_0_NAMESPACE,
+                "csw": CSW_2_0_2_NAMESPACE,
+                "ows": OWS_NAMESPACE,
                 "xlink": XLINK_NAMESPACE
             })[0]
 
     def _get_operation_xml_nodes(self):
         return self.parsed_capabilities.node.xpath(
-            "//csw:Capabilities/ows:OperationsMetadata/",
+            "//csw:Capabilities/ows:OperationsMetadata/ows:Operation/ows:DCP/ows:HTTP/ows:*[@xlink:href]",
             namespaces={
-                "wfs": WFS_2_0_0_NAMESPACE,
+                "csw": CSW_2_0_2_NAMESPACE,
+                "ows": OWS_NAMESPACE,
                 "xlink": XLINK_NAMESPACE
             })
 
     def _get_all_operation_urls(self):
         return self.parsed_capabilities.node.xpath(
-            "//csw:Capabilities/ows:OperationsMetadata/ows:Operation//ows:DCP/ows:HTTP/ows:Get/@xlink:href",
+            "//csw:Capabilities/ows:OperationsMetadata/ows:Operation//ows:DCP/ows:HTTP/ows:*/@xlink:href",
             namespaces={
-                "wfs": WFS_2_0_0_NAMESPACE,
+                "csw": CSW_2_0_2_NAMESPACE,
+                "ows": OWS_NAMESPACE,
                 "xlink": XLINK_NAMESPACE
             })
 
@@ -161,14 +172,15 @@ class CatalogueServiceTestCase(SimpleTestCase):
         return self.parsed_capabilities.node.xpath(
             "//csw:Capabilities/ows:OperationsMetadata/ows:Operation[@name='GetCapabilities']/ows:DCP/ows:HTTP/ows:Get/@xlink:href",
             namespaces={
-                "wfs": WFS_2_0_0_NAMESPACE,
+                "csw": CSW_2_0_2_NAMESPACE,
+                "ows": OWS_NAMESPACE,
                 "xlink": XLINK_NAMESPACE
             })[0]
 
     def test_operation_urls_append(self):
         o_url = OperationUrl(
             method="Post",
-            operation="GetFeature",
+            operation="GetRecords",
             mime_types=["image/png"],
             url="http://example.com")
 
@@ -176,7 +188,7 @@ class CatalogueServiceTestCase(SimpleTestCase):
             o_url
         )
 
-        added_operation_url = self._get_added_get_feature_operation_url()
+        added_operation_url = self._get_added_get_records_operation_url()
 
         self.assertEqual(
             added_operation_url,
@@ -186,7 +198,7 @@ class CatalogueServiceTestCase(SimpleTestCase):
     def test_operation_urls_insert(self):
         o_url = OperationUrl(
             method="Post",
-            operation="GetMap",
+            operation="GetRecords",
             mime_types=["image/png"],
             url="http://example.com")
 
@@ -195,7 +207,7 @@ class CatalogueServiceTestCase(SimpleTestCase):
             o_url
         )
 
-        added_operation_url = self._get_added_get_map_operation_url()
+        added_operation_url = self._get_added_get_records_operation_url()
 
         self.assertEqual(
             added_operation_url,
@@ -224,12 +236,12 @@ class CatalogueServiceTestCase(SimpleTestCase):
 
         self.assertEqual(
             len(self.parsed_capabilities.operation_urls),
-            6
+            9
         )
 
         self.assertEqual(
             len(operation_urls),
-            6
+            9
         )
 
     def test_operation_urls_remove(self):
@@ -242,12 +254,12 @@ class CatalogueServiceTestCase(SimpleTestCase):
 
         self.assertEqual(
             len(self.parsed_capabilities.operation_urls),
-            6
+            9
         )
 
         self.assertEqual(
             len(operation_urls),
-            6
+            9
         )
 
     def test_operation_urls_update_single_object(self):
@@ -270,5 +282,5 @@ class CatalogueServiceTestCase(SimpleTestCase):
 
         self.assertEqual(
             new_o_url_url,
-            "https://example.com/geoserver/ows?SERVICE=WMS&"
+            "https://example.com/pycsw/csw.py"
         )

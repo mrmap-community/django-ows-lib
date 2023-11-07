@@ -57,4 +57,5 @@ class GetRecordsResponse(XmlObject):
 
     def __init__(self, node=None, context=None, **kwargs):
         super().__init__(node, context, **kwargs)
-        self.schema_location = "http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd"
+        if not self.schema_location:
+            self.schema_location = "http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd"

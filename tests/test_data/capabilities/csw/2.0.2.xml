@@ -246,13 +246,7 @@
                 <ows:Value>http://www.w3.org/2005/Atom</ows:Value>
             </ows:Parameter>
         </ows:Operation>
-        <ows:Operation name="GetRepositoryItem">
-            <ows:DCP>
-                <ows:HTTP>
-                    <ows:Get xlink:type="simple" xlink:href="https://gdk.geoportal.hessen.de/pycsw/csw.py"/>
-                </ows:HTTP>
-            </ows:DCP>
-        </ows:Operation>
+
         <ows:Parameter name="service">
             <ows:Value>CSW</ows:Value>
         </ows:Parameter>
