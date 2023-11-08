@@ -1,5 +1,5 @@
 import urllib
-from typing import Dict
+from typing import Dict, List
 
 from django.contrib.gis.geos import MultiPolygon
 from django.contrib.gis.geos import Polygon as GeosPolygon
@@ -332,8 +332,7 @@ class MdMetadata(BaseIsoMetadata):
 
     @date_stamp.setter
     def date_stamp(self, value):
-        # TODO
-        raise NotImplementedError()
+        self._date_stamp_date_time = value
 
     @property
     def bounding_geometry(self):
@@ -392,6 +391,18 @@ class MdMetadata(BaseIsoMetadata):
         child = self._get_child_identification()
         if child:
             return child.dataset_id_code_space
+
+    @property
+    def keywords(self) -> List[str]:
+        child = self._get_child_identification()
+        if child:
+            return child.keywords
+
+    @keywords.setter
+    def keywords(self, value):
+        child = self._get_child_identification()
+        if child:
+            child.keywords = value
 
     def transform_to_model(self) -> Dict:
         attr = super().transform_to_model()

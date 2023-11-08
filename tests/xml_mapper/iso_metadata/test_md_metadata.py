@@ -44,6 +44,13 @@ class MDMetadataTestCase(SimpleTestCase):
             datetime.fromisoformat("2019-05-16T12:55:18")
         )
 
+    def test_keywords(self):
+        self.assertEqual(
+            [kw.keyword for kw in self.parsed_metadata.keywords],
+            ["meteorological", "inspireidentifiziert", "Wind", "meteorology",
+                "Meteorologisch-geografische Kennwerte", "Deutschland", None]
+        )
+
     def test_bounding_geometry_getter(self):
         min_x = 5.87
         max_x = 15.04
