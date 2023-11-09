@@ -96,22 +96,48 @@ class EXBoundingPolygon(xmlmap.XmlObject):
 
 
 class ReferenceSystem(CustomXmlObject, xmlmap.XmlObject):
+    ROOT_NAME = "RS_Identifier"
+    ROOT_NS = "gmd"
     ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE),
                             ("gco", GCO_NAMESPACE)])
 
-    ref_system = xmlmap.StringField(xpath="gmd:code/gco:CharacterString")
+    _ref_system = xmlmap.StringField(xpath="gmd:code/gco:CharacterString")
 
-    def get_field_dict(self):
-        field_dict = super().get_field_dict()
-        if field_dict.get("ref_system", None):
-            if "http://www.opengis.net/def/crs/" in field_dict["ref_system"]:
-                code = field_dict["ref_system"].split("/")[-1]
-            else:
-                code = field_dict["ref_system"].split(":")[-1]
-            field_dict.update({"code": code})
-            del field_dict["ref_system"]
+    def __eq__(self, other):
+        return self.code == other.code and self.prefix == other.prefix
 
-        return field_dict
+    def _parse_ref_system(self):
+        if "http://www.opengis.net/def/crs/EPSG" in self._ref_system:
+            code = self._ref_system.split("/")[-1]
+            prefix = "EPSG"
+        else:
+            code = self._ref_system.split(":")[-1]
+            prefix = "EPSG"
+        return code, prefix
+
+    @property
+    def code(self):
+        code, _ = self._parse_ref_system()
+        return code
+
+    @code.setter
+    def code(self, value):
+        if "EPSG:" not in value:
+            raise NotImplementedError(
+                "we only can handle epsg codes like 'EPSG:4236' for now")
+        self._ref_system = value
+
+    @property
+    def prefix(self):
+        _, prefix = self._parse_ref_system()
+        return prefix
+
+    @prefix.setter
+    def prefix(self, value):
+        if "EPSG:" not in value:
+            raise NotImplementedError(
+                "we only can handle epsg codes like 'EPSG:4236' for now")
+        self._ref_system = value
 
 
 class CiResponsibleParty(CustomXmlObject, xmlmap.XmlObject):

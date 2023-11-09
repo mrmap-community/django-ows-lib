@@ -7,6 +7,7 @@ from django.test import SimpleTestCase
 from eulxml.xmlmap import load_xmlobject_from_file
 
 from ows_lib.xml_mapper.iso_metadata.iso_metadata import (MdMetadata,
+                                                          ReferenceSystem,
                                                           WrappedIsoMetadata)
 from tests.settings import DJANGO_TEST_ROOT_DIR
 
@@ -49,6 +50,14 @@ class MDMetadataTestCase(SimpleTestCase):
             [kw.keyword for kw in self.parsed_metadata.keywords],
             ["meteorological", "inspireidentifiziert", "Wind", "meteorology",
                 "Meteorologisch-geografische Kennwerte", "Deutschland", None]
+        )
+
+    def test_ref_system(self):
+        self.assertEqual(
+            [ref_system
+             for ref_system in self.parsed_metadata.reference_systems],
+            [ReferenceSystem(code="EPSG:4258"),
+             ReferenceSystem(code="EPSG:4326")]
         )
 
     def test_bounding_geometry_getter(self):
