@@ -106,6 +106,11 @@ class ReferenceSystem(CustomXmlObject, xmlmap.XmlObject):
     def __eq__(self, other):
         return self.code == other.code and self.prefix == other.prefix
 
+    def transform_to_model(self) -> Dict:
+        attr = super().transform_to_model()
+        attr.update({"code": self.code, "prefix": self.prefix})
+        return attr
+
     def _parse_ref_system(self):
         if "http://www.opengis.net/def/crs/EPSG" in self._ref_system:
             code = self._ref_system.split("/")[-1]

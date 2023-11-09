@@ -53,11 +53,12 @@ class MDMetadataTestCase(SimpleTestCase):
         )
 
     def test_ref_system(self):
+
         self.assertEqual(
-            [ref_system
+            [ref_system.transform_to_model()
              for ref_system in self.parsed_metadata.reference_systems],
-            [ReferenceSystem(code="EPSG:4258"),
-             ReferenceSystem(code="EPSG:4326")]
+            [ReferenceSystem(code="EPSG:4258").transform_to_model(),
+             ReferenceSystem(code="EPSG:4326").transform_to_model()]
         )
 
     def test_bounding_geometry_getter(self):
