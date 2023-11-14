@@ -23,6 +23,7 @@ class GetRecordsRequestTestCase(SimpleTestCase):
         self.assertEqual(self.parsed_xml_request.service_type, "CSW")
         self.assertEqual(self.parsed_xml_request.service_version, "2.0.2")
         self.assertEqual(self.parsed_xml_request.sort_by, "-Title")
+        self.assertEqual(self.parsed_xml_request.element_set_name, "full")
 
         self.assertEqual(self.parsed_xml_request.type_names, "csw:Record")
 
