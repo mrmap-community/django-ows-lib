@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<csw:GetRecordById xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" service="CSW" version="2.0.2">
+    <csw:Id>5df54bf0-3a7d-44bf-9abf-84d772da8df1</csw:Id>
+    <csw:Id>d256703f-f2d8-43e6-9c3a-c006299eba76</csw:Id>
+    <csw:Id>d4b2a76c-4ff2-4585-bde1-445c5c738a3b6</csw:Id>
+    <csw:ElementSetName>full</csw:ElementSetName>
+</csw:GetRecordById>

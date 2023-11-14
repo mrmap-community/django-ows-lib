@@ -192,21 +192,15 @@ def get_requested_feature_types(params: Dict) -> List[str]:
     return list(filter(None, params.get("TYPENAMES", params.get("typenames", "")).split(",")))
 
 
-def filter_ogc_query_params(params: Dict) -> Dict:
-    """ Parses the GET parameters into all member variables, which can be found in a ogc request.
+def get_requested_records(params: Dict) -> List[str]:
+    """Filters the given params by requested featuretypes
 
     :param params: all query parameters
     :type params: Dict
-    :return: the ogc specific query parameters
-    :rtype: Dict
+    :return: the requested featuretypes from the query params
+    :rtype: List[str]
     """
-    query_keys = ["SERVICE", "REQUEST", "LAYERS", "BBOX", "VERSION", "FORMAT",
-                  "OUTPUTFORMAT", "SRS", "CRS", "SRSNAME", "WIDTH", "HEIGHT",
-                  "TRANSPARENT", "EXCEPTIONS", "BGCOLOR", "TIME", "ELEVATION",
-                  "QUERY_LAYERS", "INFO_FORMAT", "FEATURE_COUNT", "I", "J"]
-    filtered = {key: params.get(
-        key, params.get(key.lower())) for key in query_keys}
-    return filtered
+    return list(filter(None, params.get("Id", "").split(",")))
 
 
 def get_client(capabilities: OGCServiceMixin, session: Session = Session()):

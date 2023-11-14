@@ -8,7 +8,6 @@ from lark.exceptions import LarkError
 from lxml.etree import XMLSyntaxError
 from pygeofilter.backends.django.evaluate import to_filter
 from pygeofilter.parsers.ecql import parse as parse_ecql
-from pygeofilter.parsers.fes.parser import parse as parse_fes
 from pygeofilter.parsers.fes.util import NodeParsingError
 from requests import Request
 
@@ -16,10 +15,14 @@ from ows_lib.client.enums import OGCOperationEnum
 from ows_lib.client.exceptions import MissingBboxParam, MissingServiceParam
 from ows_lib.client.utils import (construct_polygon_from_bbox_query_param,
                                   get_requested_feature_types,
-                                  get_requested_layers)
+                                  get_requested_layers, get_requested_records)
+from ows_lib.contrib.fes.parser import parse as parse_fes
 from ows_lib.xml_mapper.exceptions import (
     InvalidParameterValueException,
     MissingConstraintLanguageParameterException)
+from ows_lib.xml_mapper.xml_requests.csw.get_records import GetRecordsRequest
+from ows_lib.xml_mapper.xml_requests.csw.get_records_by_id import \
+    GetRecordByIdRequest
 from ows_lib.xml_mapper.xml_requests.utils import PostRequest
 from ows_lib.xml_mapper.xml_requests.wfs.get_feature import (GetFeatureRequest,
                                                              Query)
@@ -35,13 +38,16 @@ class OGCRequest(Request):
         self._bbox: GEOSGeometry = None
         self._requested_entities: List[str] = []
         self._xml_request: XmlObject = None
+        self.operation = "unknown"
+        self.service_version = "unknown"
+        self.service_type = "unknown"
 
         if self.method == "GET":
             self.operation: str = self.ogc_query_params.get("REQUEST", "")
             self.service_version: str = self.ogc_query_params.get(
                 "VERSION", "")
             self.service_type: str = self.ogc_query_params.get("SERVICE", "")
-        elif self.method == "POST":
+        elif self.method == "POST" and self.data and isinstance(self.data, bytes):
             post_request: PostRequest = load_xmlobject_from_string(
                 string=self.data, xmlclass=PostRequest)
 
@@ -66,7 +72,7 @@ class OGCRequest(Request):
     def requested_entities(self) -> List[str]:
         """Returns the list of requested entities
 
-        This function analyzes the request and find out which layers or featuretypes are requests.
+        This function analyzes the request and find out which layers or featuretypes, or records are requested.
 
         :return: list of requested layers | list of request featuretypes
         :rtype: List[str]
@@ -75,45 +81,57 @@ class OGCRequest(Request):
             if self.is_wms:
                 self._requested_entities.extend(
                     get_requested_layers(params=self.ogc_query_params))
+            elif self.is_get_feature_request:
+                if self.is_get:
+                    self._requested_entities.extend(
+                        get_requested_feature_types(params=self.ogc_query_params))
+                elif self.is_post:
+                    self._requested_entities.extend(
+                        self.xml_request.requested_feature_types)
+            elif self.is_get_record_by_id_request:
+                if self.is_get:
+                    self._requested_entities.extend(
+                        get_requested_records(params=self.ogc_query_params)
+                    )
+                elif self.is_post:
+                    self._requested_entities.extend(
+                        self.xml_request.ids)
             else:
-                if self.is_get_feature_request:
-                    if self.is_get:
-                        self._requested_entities.extend(
-                            get_requested_feature_types(params=self.ogc_query_params))
-                    elif self.is_post:
-                        self._requested_entities.extend(
-                            self.xml_request.requested_feature_types)
+                pass
         return self._requested_entities
 
     def filter_constraint(self, field_mapping=None, mapping_choices=None) -> Q:
         if self.is_csw and self.is_get_records_request:
-            # TODO: handle xml filter provided by post body
-            constraint = self.ogc_query_params.get("Constraint", "")
-            constraint_language = self.ogc_query_params.get(
-                "CONSTRAINTLANGUAGE", "")
-            if constraint and not constraint_language:
-                return MissingConstraintLanguageParameterException(ogc_request=self)
+            if self.is_get:
+                constraint = self.ogc_query_params.get("Constraint", "")
+                constraint_language = self.ogc_query_params.get(
+                    "CONSTRAINTLANGUAGE", "")
+                if constraint and not constraint_language:
+                    return MissingConstraintLanguageParameterException(ogc_request=self)
 
-            elif constraint and constraint_language:
-                if constraint_language == "CQL_TEXT":
-                    try:
-                        ast = parse_ecql(constraint)
-                        return to_filter(ast, field_mapping, mapping_choices)
-                    except LarkError as e:
-                        return InvalidParameterValueException(ogc_request=self, message=e)
-                elif constraint_language == "FILTER":
-                    try:
-                        ast = parse_fes(constraint)
-                        return to_filter(ast, field_mapping, mapping_choices)
-                    except (XMLSyntaxError, NodeParsingError) as e:
+                elif constraint and constraint_language:
+                    if constraint_language == "CQL_TEXT":
+                        try:
+                            ast = parse_ecql(constraint)
+                            return to_filter(ast, field_mapping, mapping_choices)
+                        except LarkError as e:
+                            return InvalidParameterValueException(ogc_request=self, message=e)
+                    elif constraint_language == "FILTER":
+                        try:
+                            ast = parse_fes(constraint)
+                            return to_filter(ast, field_mapping, mapping_choices)
+                        except (XMLSyntaxError, NodeParsingError) as e:
+                            return InvalidParameterValueException(
+                                ogc_request=self,
+                                message=e
+                            )
+                    else:
                         return InvalidParameterValueException(
                             ogc_request=self,
-                            message=e
-                        )
-                else:
-                    return InvalidParameterValueException(
-                        ogc_request=self,
-                        message="Provided CONSTRAINTLANGUAGE is not supported.")
+                            message="Provided CONSTRAINTLANGUAGE is not supported.")
+            elif self.is_post:
+                return self.xml_request.get_django_filter(field_mapping, mapping_choices)
+
         return Q()
 
     @property
@@ -255,7 +273,7 @@ class OGCRequest(Request):
                           "outputSchema", "startPosition", "maxRecords", "schemaLanguage",
                           "ElementSetName", "ElementName", "typeNames", "CONSTRAINTLANGUAGE",
                           "Constraint", "SortBy", "DistributedSearch",
-                          "hopCount", "ResponseHandler"]
+                          "hopCount", "ResponseHandler", "Id"]
 
             for key in query_keys:
                 value = self.params.get(key, self.params.get(key.lower(), ""))
@@ -297,4 +315,10 @@ class OGCRequest(Request):
                         queries.append(query)
                     self._xml_request: GetFeatureRequest = GetFeatureRequest()
                     self._xml_request.queries = queries
+            elif self.is_get_records_request and self.is_post:
+                self._xml_request: GetRecordsRequest = load_xmlobject_from_string(
+                    string=self.data, xmlclass=GetRecordsRequest)
+            elif self.is_get_record_by_id_request and self.is_post:
+                self._xml_request: GetRecordByIdRequest = load_xmlobject_from_string(
+                    string=self.data, xmlclass=GetRecordByIdRequest)
         return self._xml_request

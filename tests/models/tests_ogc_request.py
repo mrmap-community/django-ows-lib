@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from django.db.models.expressions import Value
 from django.db.models.query_utils import Q
@@ -9,6 +10,7 @@ from ows_lib.models.ogc_request import OGCRequest
 from ows_lib.xml_mapper.exceptions import (
     InvalidParameterValueException,
     MissingConstraintLanguageParameterException)
+from ows_lib.xml_mapper.xml_requests.csw.get_records import GetRecordsRequest
 from ows_lib.xml_mapper.xml_requests.wfs.get_feature import GetFeatureRequest
 from tests.settings import DJANGO_TEST_ROOT_DIR
 
@@ -73,6 +75,36 @@ class OGCRequestTest(SimpleTestCase):
         self.assertTrue(isinstance(ogc_request.xml_request, GetFeatureRequest))
         ogc_request.prepare()
 
+    def test_ogc_request_with_get_record_by_id_get_request(self):
+        """Test that OGCRequest helper class works correctly for a given GetMap get request"""
+
+        ogc_request: OGCRequest = OGCRequest(
+            method="GET",
+            url="http://mrmap/csw",
+            params={"REQUEST": ["GetRecordById"], "SERVICE": "CSW", "VERSION": "2.0.2", "Id": "id1,id2"})
+
+        self.assertTrue(ogc_request.is_get)
+        self.assertTrue(ogc_request.is_get_record_by_id_request)
+        self.assertEqual(["id1", "id2"],
+                         ogc_request.requested_entities)
+        ogc_request.prepare()
+
+    def test_ogc_request_with_get_record_by_id_post_request(self):
+        """Test that OGCRequest helper class works correctly for a given GetMap get request"""
+        request_xml = os.path.join(DJANGO_TEST_ROOT_DIR,
+                                   "test_data/xml_requests/get_record_by_id_2.2.0.xml")
+        ogc_request: OGCRequest = OGCRequest(
+            method="POST",
+            url="http://mrmap/csw",
+            data=Path(request_xml).read_bytes()
+        )
+
+        self.assertTrue(ogc_request.is_post)
+        self.assertTrue(ogc_request.is_get_record_by_id_request)
+        self.assertEqual(["5df54bf0-3a7d-44bf-9abf-84d772da8df1", "d256703f-f2d8-43e6-9c3a-c006299eba76", "d4b2a76c-4ff2-4585-bde1-445c5c738a3b6"],
+                         ogc_request.requested_entities)
+        ogc_request.prepare()
+
     def test_ogc_request_with_get_records_request_without_constraint_langugage(self):
         """Test that OGCRequest helper class works correctly for a given GetMap get request"""
 
@@ -120,14 +152,13 @@ class OGCRequestTest(SimpleTestCase):
             InvalidParameterValueException,
             type(ogc_request.filter_constraint()))
 
-    def test_ogc_request_with_get_records_request_with_wrong_fes_filter(self):
+    def test_ogc_request_with_get_records_get_request_with_wrong_fes_filter(self):
         """Test that OGCRequest helper class works correctly for a given GetMap get request"""
 
-        # cql filter
         ogc_request: OGCRequest = OGCRequest(
             method="GET",
             url="http://mrmap-proxy/csw/cd16cc1f-3abb-4625-bb96-fbe80dbe23e3/",
-            params={"REQUEST": ["GetRecords"], "SERVICE": "CSW", "VERSION": "2.0.2", "Constraint": '<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc"><ogc:a><ogc:ValueReference>type</ogc:ValueReference><ogc:Literal>dataset</ogc:Literal></ogc:a></ogc:Filter>', "CONSTRAINTLANGUAGE": "FILTER"})
+            params={"REQUEST": ["GetRecords"], "SERVICE": "CSW", "VERSION": "2.0.2", "Constraint": '<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc"><ogc:a><ogc:PropertyName>type</ogc:PropertyName><ogc:Literal>dataset</ogc:Literal></ogc:a></ogc:Filter>', "CONSTRAINTLANGUAGE": "FILTER"})
 
         self.assertTrue(ogc_request.is_csw)
         self.assertTrue(ogc_request.is_get_records_request)
@@ -136,18 +167,35 @@ class OGCRequestTest(SimpleTestCase):
             InvalidParameterValueException,
             type(ogc_request.filter_constraint()))
 
-    def test_ogc_request_with_get_records_request_with_fes_filter(self):
+    def test_ogc_request_with_get_records_get_request_with_fes_filter(self):
         """Test that OGCRequest helper class works correctly for a given GetMap get request"""
 
-        # cql filter
         ogc_request: OGCRequest = OGCRequest(
             method="GET",
             url="http://mrmap-proxy/csw/cd16cc1f-3abb-4625-bb96-fbe80dbe23e3/",
-            params={"REQUEST": ["GetRecords"], "SERVICE": "CSW", "VERSION": "2.0.2", "Constraint": '<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc"><ogc:PropertyIsEqualTo><ogc:ValueReference>type</ogc:ValueReference><ogc:Literal>dataset</ogc:Literal></ogc:PropertyIsEqualTo></ogc:Filter>', "CONSTRAINTLANGUAGE": "FILTER"})
+            params={"REQUEST": ["GetRecords"], "SERVICE": "CSW", "VERSION": "2.0.2", "Constraint": '<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc"><ogc:PropertyIsEqualTo><ogc:PropertyName>type</ogc:PropertyName><ogc:Literal>dataset</ogc:Literal></ogc:PropertyIsEqualTo></ogc:Filter>', "CONSTRAINTLANGUAGE": "FILTER"})
 
         expected_query = Q(type__exact=Value('dataset'))
 
         self.assertTrue(ogc_request.is_csw)
         self.assertTrue(ogc_request.is_get_records_request)
         f = ogc_request.filter_constraint()
+        self.assertEqual(expected_query, f)
+
+    def test_ogc_request_with_get_records_post_request_with_fes_filter(self):
+        """Test that OGCRequest helper class works correctly for a given GetMap get request"""
+        request_xml = os.path.join(DJANGO_TEST_ROOT_DIR,
+                                   "test_data/xml_requests/get_records_2.2.0.xml")
+
+        ogc_request: OGCRequest = OGCRequest(
+            method="POST",
+            data=Path(request_xml).read_bytes(),
+            url="http://mrmap-proxy/csw/cd16cc1f-3abb-4625-bb96-fbe80dbe23e3/",
+        )
+
+        expected_query = Q(search__exact=Value("Bâtiments"))
+
+        self.assertTrue(ogc_request.is_csw)
+        self.assertTrue(ogc_request.is_get_records_request)
+        f = ogc_request.filter_constraint(field_mapping={"AnyText": "search"})
         self.assertEqual(expected_query, f)
