@@ -2,6 +2,7 @@ from django.db.models.query_utils import Q
 from eulxml.xmlmap import NodeField, StringField, XmlObject
 from lxml.etree import XMLSyntaxError
 from pygeofilter.backends.django.evaluate import to_filter
+from pygeofilter.parsers.ecql import parse as parse_cql
 from pygeofilter.parsers.fes.util import NodeParsingError
 
 from ows_lib.contrib.fes.parser import parse as parse_fes
@@ -29,8 +30,14 @@ class GetRecordsRequest(XmlObject):
     _sort_by_order = StringField(
         xpath='./csw:Query/ogc:SortBy/ogc:SortProperty/ogc:SortOrder')
 
-    constraint_filter = NodeField(
+    constraint_version = StringField(
+        xpath='./csw:Query/csw:Constraint/@version')
+
+    fes_filter = NodeField(
         xpath="./csw:Query/csw:Constraint/ogc:Filter", node_class=XmlObject)
+
+    cql_filter = NodeField(
+        xpath="./csw:Query/csw:Constraint/csw:CqlText", node_class=XmlObject)
 
     @property
     def sort_by(self):
@@ -51,14 +58,26 @@ class GetRecordsRequest(XmlObject):
             self._sort_by_property = value
 
     def get_django_filter(self, field_mapping=None, mapping_choices=None):
-        if not self.constraint_filter:
+        if not self.fes_filter and not self.cql_filter:
             return Q()
-        try:
-            ast = parse_fes(
-                self.constraint_filter.node)
-            return to_filter(ast, field_mapping, mapping_choices)
-        except (XMLSyntaxError, NodeParsingError) as e:
-            return InvalidParameterValueException(
-                ogc_request=self,
-                message=e
-            )
+        elif self.fes_filter:
+            try:
+                ast = parse_fes(
+                    self.fes_filter.node)
+                return to_filter(ast, field_mapping, mapping_choices)
+            except (XMLSyntaxError, NodeParsingError) as e:
+                return InvalidParameterValueException(
+                    ogc_request=self,
+                    message=e
+                )
+        elif self.cql_filter:
+            try:
+                ast = parse_cql(
+                    self.cql_filter.node
+                )
+                return to_filter(ast, field_mapping, mapping_choices)
+            except Exception as e:
+                return InvalidParameterValueException(
+                    ogc_request=self,
+                    message=e
+                )

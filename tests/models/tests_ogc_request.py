@@ -10,7 +10,6 @@ from ows_lib.models.ogc_request import OGCRequest
 from ows_lib.xml_mapper.exceptions import (
     InvalidParameterValueException,
     MissingConstraintLanguageParameterException)
-from ows_lib.xml_mapper.xml_requests.csw.get_records import GetRecordsRequest
 from ows_lib.xml_mapper.xml_requests.wfs.get_feature import GetFeatureRequest
 from tests.settings import DJANGO_TEST_ROOT_DIR
 

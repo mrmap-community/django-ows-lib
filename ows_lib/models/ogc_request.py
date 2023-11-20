@@ -315,10 +315,51 @@ class OGCRequest(Request):
                         queries.append(query)
                     self._xml_request: GetFeatureRequest = GetFeatureRequest()
                     self._xml_request.queries = queries
-            elif self.is_get_records_request and self.is_post:
-                self._xml_request: GetRecordsRequest = load_xmlobject_from_string(
-                    string=self.data, xmlclass=GetRecordsRequest)
-            elif self.is_get_record_by_id_request and self.is_post:
-                self._xml_request: GetRecordByIdRequest = load_xmlobject_from_string(
-                    string=self.data, xmlclass=GetRecordByIdRequest)
+            elif self.is_get_records_request:
+                if self.is_post:
+                    self._xml_request: GetRecordsRequest = load_xmlobject_from_string(
+                        string=self.data, xmlclass=GetRecordsRequest)
+                elif self.is_get:
+                    sort_by = self.ogc_query_params.get("SortBy")
+                    if sort_by:
+                        element_name, a_or_d = sort_by.split(":")
+                        if a_or_d == "A":
+                            sort_by = element_name
+                        elif a_or_d == "D":
+                            sort_by = f"-{element_name}"
+                    constraint = self.ogc_query_params.get("Constraint", "")
+                    constraint_language = self.ogc_query_params.get(
+                        "CONSTRAINTLANGUAGE", "")
+                    self._xml_request = GetRecordsRequest()
+                    self._xml_request.service_version = self.ogc_query_params.get(
+                        "version"),
+                    self._xml_request.service_type = self.ogc_query_params.get(
+                        "service"),
+                    self._xml_request.result_type = self.ogc_query_params.get(
+                        "resultType"),
+                    self._xml_request.max_records = self.ogc_query_params.get(
+                        "maxRecords"),
+                    self._xml_request.element_set_name = self.ogc_query_params.get(
+                        "ElementSetName"),
+                    self._xml_request.sort_by = sort_by,
+                    if constraint and constraint_language == "CQL_TEXT":
+                        self._xml_request.cql_filter = constraint
+                        self._xml_request.constraint_version = "1.1.0"
+                    elif constraint and constraint_language == "FILTER":
+                        self._xml_request.fes_filter = constraint
+                        self._xml_request.constraint_version = "1.1.0"
+            elif self.is_get_record_by_id_request:
+                if self.is_post:
+                    self._xml_request: GetRecordByIdRequest = load_xmlobject_from_string(
+                        string=self.data, xmlclass=GetRecordByIdRequest)
+                elif self.is_get:
+                    self._xml_request = GetRecordByIdRequest()
+                    self._xml_request.service_version = self.ogc_query_params.get(
+                        "version")
+                    self._xml_request.service_type = self.ogc_query_params.get(
+                        "service")
+                    self._xml_request.element_set_name = self.ogc_query_params.get(
+                        "elementsetname")
+                    self._xml_request.ids = self.ogc_query_params.get(
+                        "id", "").split(",")
         return self._xml_request
