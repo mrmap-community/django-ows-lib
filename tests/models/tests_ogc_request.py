@@ -3,21 +3,24 @@ from pathlib import Path
 
 from django.db.models.expressions import Value
 from django.db.models.query_utils import Q
-from django.test import RequestFactory, SimpleTestCase
+from django.test import RequestFactory
 from eulxml.xmlmap import load_xmlobject_from_file
 
 from ows_lib.models.ogc_request import OGCRequest
 from ows_lib.xml_mapper.exceptions import (
     InvalidParameterValueException,
     MissingConstraintLanguageParameterException)
+from ows_lib.xml_mapper.xml_requests.csw.get_records import GetRecordsRequest
 from ows_lib.xml_mapper.xml_requests.wfs.get_feature import GetFeatureRequest
 from tests.settings import DJANGO_TEST_ROOT_DIR
+from tests.utils import ExtendedSimpleTestCase
 
 
-class OGCRequestTest(SimpleTestCase):
+class OGCRequestTest(ExtendedSimpleTestCase):
 
     def setUp(self) -> None:
         self.factory = RequestFactory()
+        self.maxDiff = None
 
     def test_ogc_request_from_django_request(self):
 
@@ -136,6 +139,17 @@ class OGCRequestTest(SimpleTestCase):
         f = ogc_request.filter_constraint()
         self.assertEqual(expected_query, f)
 
+        converted_xml_request = ogc_request.xml_request.serializeDocument(
+            pretty=True)
+        path = os.path.join(DJANGO_TEST_ROOT_DIR,
+                            "./test_data/xml_requests/get_records_cql_2.2.0.xml")
+
+        expected_xml_request: GetRecordsRequest = load_xmlobject_from_file(
+            filename=path, xmlclass=GetRecordsRequest)
+
+        self.assertXMLIEqual(converted_xml_request,
+                             expected_xml_request.serializeDocument(pretty=True))
+
     def test_ogc_request_with_get_records_request_with_wrong_cql_filter(self):
         """Test that OGCRequest helper class works correctly for a given GetMap get request"""
 
@@ -172,7 +186,15 @@ class OGCRequestTest(SimpleTestCase):
         ogc_request: OGCRequest = OGCRequest(
             method="GET",
             url="http://mrmap-proxy/csw/cd16cc1f-3abb-4625-bb96-fbe80dbe23e3/",
-            params={"REQUEST": ["GetRecords"], "SERVICE": "CSW", "VERSION": "2.0.2", "Constraint": '<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc"><ogc:PropertyIsEqualTo><ogc:PropertyName>type</ogc:PropertyName><ogc:Literal>dataset</ogc:Literal></ogc:PropertyIsEqualTo></ogc:Filter>', "CONSTRAINTLANGUAGE": "FILTER"})
+            params={
+                "REQUEST": ["GetRecords"],
+                "SERVICE": "CSW",
+                "VERSION": "2.0.2",
+                "Constraint": '<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc"><ogc:PropertyIsEqualTo><ogc:PropertyName>type</ogc:PropertyName><ogc:Literal>dataset</ogc:Literal></ogc:PropertyIsEqualTo></ogc:Filter>',
+                "CONSTRAINTLANGUAGE": "FILTER",
+                "SortBy": "Title:D"
+            }
+        )
 
         expected_query = Q(type__exact=Value('dataset'))
 
@@ -180,6 +202,18 @@ class OGCRequestTest(SimpleTestCase):
         self.assertTrue(ogc_request.is_get_records_request)
         f = ogc_request.filter_constraint()
         self.assertEqual(expected_query, f)
+
+        converted_xml_request = ogc_request.xml_request.serializeDocument(
+            pretty=True
+        )
+        path = os.path.join(DJANGO_TEST_ROOT_DIR,
+                            "./test_data/xml_requests/get_records_fes_2.2.0.xml")
+
+        expected_xml_request: GetRecordsRequest = load_xmlobject_from_file(
+            filename=path, xmlclass=GetRecordsRequest)
+
+        self.assertXMLIEqual(converted_xml_request,
+                             expected_xml_request.serializeDocument(pretty=True))
 
     def test_ogc_request_with_get_records_post_request_with_fes_filter(self):
         """Test that OGCRequest helper class works correctly for a given GetMap get request"""

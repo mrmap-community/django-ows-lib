@@ -36,8 +36,8 @@ class GetRecordsRequest(XmlObject):
     fes_filter = NodeField(
         xpath="./csw:Query/csw:Constraint/ogc:Filter", node_class=XmlObject)
 
-    cql_filter = NodeField(
-        xpath="./csw:Query/csw:Constraint/csw:CqlText", node_class=XmlObject)
+    cql_filter = StringField(
+        xpath="./csw:Query/csw:Constraint/csw:CqlText")
 
     @property
     def sort_by(self):
@@ -50,7 +50,10 @@ class GetRecordsRequest(XmlObject):
 
     @sort_by.setter
     def sort_by(self, value):
-        if value.startswith("-"):
+        if value is None:
+            self._sort_by_order = None
+            self._sort_by_property = None
+        elif value.startswith("-"):
             self._sort_by_order = "DESC"
             self._sort_by_property = value.split("-")[1]
         else:

@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[v0.11.0] - 2023-11-21
+---------------------
+
+Added
+~~~~~
+
+* implement Acknowledgment mapper.
+* add implementation to convert `GetRecords` and `GetRecordById` requests by http get method to postable xml object provided by the `xml_request` property of the ogc_request model.
+
 
 [v0.10.0] - 2023-11-14
 ---------------------

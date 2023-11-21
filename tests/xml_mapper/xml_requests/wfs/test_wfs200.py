@@ -1,14 +1,14 @@
 import os
 
 from django.contrib.gis.geos import Polygon
-from django.test import SimpleTestCase
 from eulxml.xmlmap import load_xmlobject_from_file
-from lxml import etree
+
 from ows_lib.xml_mapper.xml_requests.wfs.get_feature import GetFeatureRequest
 from tests.settings import DJANGO_TEST_ROOT_DIR
+from tests.utils import ExtendedSimpleTestCase
 
 
-class GetFeatureRequestTestCase(SimpleTestCase):
+class GetFeatureRequestTestCase(ExtendedSimpleTestCase):
 
     insecure_xml = os.path.join(DJANGO_TEST_ROOT_DIR,
                                 "test_data/xml_requests/get_feature_2.0.0.xml")
@@ -36,13 +36,4 @@ class GetFeatureRequestTestCase(SimpleTestCase):
             filename=self.secured_xml, xmlclass=GetFeatureRequest)
         second = second.serializeDocument()
 
-        # We need to format both xml files the same way... otherwise the self.assertXMLEqual function, which is based on str compare will fail
-        parser = etree.XMLParser(
-            remove_blank_text=True, remove_comments=True, ns_clean=True, encoding="UTF-8", remove_pis=True)
-
-        first_xml = etree.fromstring(text=first, parser=parser)
-        second_xml = etree.fromstring(text=second, parser=parser)
-
-        self.maxDiff = None
-        self.assertXMLEqual(etree.tostring(first_xml).decode("UTF-8"),
-                            etree.tostring(second_xml).decode("UTF-8"))
+        self.assertXMLIEqual(first, second)

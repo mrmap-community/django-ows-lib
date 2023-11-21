@@ -7,9 +7,10 @@ from lxml import etree
 
 from ows_lib.xml_mapper.xml_responses.csw.get_records import GetRecordsResponse
 from tests.settings import DJANGO_TEST_ROOT_DIR
+from tests.utils import ExtendedSimpleTestCase
 
 
-class GetRecordsResponseTestCase(SimpleTestCase):
+class GetRecordsResponseTestCase(ExtendedSimpleTestCase):
 
     excepted_xml = os.path.join(DJANGO_TEST_ROOT_DIR,
                                 "test_data/xml_responses/get_records_2.0.2.xml")
@@ -33,13 +34,6 @@ class GetRecordsResponseTestCase(SimpleTestCase):
         )
         second = second.serializeDocument()
 
-        # We need to format both xml files the same way... otherwise the self.assertXMLEqual function, which is based on str compare will fail
-        parser = etree.XMLParser(
-            remove_blank_text=True, remove_comments=True, ns_clean=True, encoding="UTF-8", remove_pis=True)
-
-        first_xml = etree.fromstring(text=first, parser=parser)
-        second_xml = etree.fromstring(text=second, parser=parser)
-
         self.maxDiff = None
-        self.assertXMLEqual(etree.tostring(first_xml).decode("UTF-8"),
-                            etree.tostring(second_xml).decode("UTF-8"))
+        self.assertXMLIEqual(first,
+                             second)
