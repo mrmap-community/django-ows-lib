@@ -102,6 +102,7 @@ class ReferenceSystem(CustomXmlObject, xmlmap.XmlObject):
                             ("gco", GCO_NAMESPACE)])
 
     _ref_system = xmlmap.StringField(xpath="gmd:code/gco:CharacterString")
+    _gmx_ref_system = xmlmap.StringField(xpath="gmd:code/gmx:Anchor")
 
     def __eq__(self, other):
         return self.code == other.code and self.prefix == other.prefix
@@ -112,13 +113,18 @@ class ReferenceSystem(CustomXmlObject, xmlmap.XmlObject):
         return attr
 
     def _parse_ref_system(self):
-        if "http://www.opengis.net/def/crs/EPSG" in self._ref_system:
-            code = self._ref_system.split("/")[-1]
-            prefix = "EPSG"
+        ref_child = self._ref_system if self._ref_system else self._gmx_ref_system
+        if ref_child:
+            if "http://www.opengis.net/def/crs/EPSG" in ref_child:
+                code = ref_child.split("/")[-1]
+                prefix = "EPSG"
+            else:
+                code = ref_child.split(":")[-1]
+                prefix = "EPSG"
+
+            return code, prefix
         else:
-            code = self._ref_system.split(":")[-1]
-            prefix = "EPSG"
-        return code, prefix
+            return None
 
     @property
     def code(self):
