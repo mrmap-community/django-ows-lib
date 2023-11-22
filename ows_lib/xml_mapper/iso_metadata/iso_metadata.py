@@ -190,13 +190,6 @@ class BasicInformation(BaseIsoMetadata):
     abstract = xmlmap.StringField(xpath="gmd:abstract/gco:CharacterString")
     access_constraints = xmlmap.StringField(
         xpath="gmd:resourceConstraints/gmd:MD_LegalConstraints[gmd:accessConstraints/gmd:MD_RestrictionCode/@codeListValue=\"otherRestrictions\"]/gmd:otherConstraints/gco:CharacterString")
-    # dataset specific fields
-    _code_md = xmlmap.StringField(
-        xpath="gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
-    _code_rs = xmlmap.StringField(
-        xpath="gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:code/gco:CharacterString")
-    _code_space_rs = xmlmap.StringField(
-        xpath="gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:codeSpace/gco:CharacterString")
 
     # character_set_code = xmlmap.StringField(xpath=f"{NS_WC}characterSet']/{NS_WC}MD_CharacterSetCode']/@codeListValue")
 
@@ -206,6 +199,24 @@ class BasicInformation(BaseIsoMetadata):
                                     node_class=Keyword)
 
     is_broken = False  # flag to signal that this metadata object has integrity error
+
+
+class MdDataIdentification(BasicInformation):
+    ROOT_NAME = "MD_DataIdentification"
+    equivalent_scale = xmlmap.FloatField(
+        xpath="gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
+    ground_res = xmlmap.FloatField(
+        xpath="gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gmd:Distance")
+    categories = xmlmap.NodeListField(xpath="gmd:topicCategory/gmd:MD_TopicCategoryCode",
+                                      node_class=Category)
+    bbox_lat_lon_list = xmlmap.NodeListField(xpath="gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox",
+                                             node_class=EXGeographicBoundingBox)
+    bounding_polygon_list = xmlmap.NodeListField(xpath="gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon",
+                                                 node_class=EXBoundingPolygon)
+    dimensions = xmlmap.NodeListField(xpath="gmd:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent",
+                                      node_class=Dimension)
+    _code_md = xmlmap.StringField(
+        xpath="gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
 
     def _parse_identifier(self):
         _dataset_id = ""
@@ -228,13 +239,7 @@ class BasicInformation(BaseIsoMetadata):
             else:
                 _dataset_id = self._code_md
                 _code_space = ""
-        elif self._code_rs:
-            # try to read code from RS_Identifier
-            if self._code_space_rs is not None and self._code_rs is not None and len(self._code_space_rs) > 0 and len(self._code_rs) > 0:
-                _dataset_id = self._code_rs
-                _code_space = self._code_space_rs
-            else:
-                self.is_broken = True
+
         return _dataset_id.replace('\n', '').strip(), _code_space.replace('\n', '').strip()
 
     @property
@@ -244,22 +249,6 @@ class BasicInformation(BaseIsoMetadata):
     @property
     def dataset_id_code_space(self) -> str:
         return self._parse_identifier()[1]
-
-
-class MdDataIdentification(BasicInformation):
-    ROOT_NAME = "MD_DataIdentification"
-    equivalent_scale = xmlmap.FloatField(
-        xpath="gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
-    ground_res = xmlmap.FloatField(
-        xpath="gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gmd:Distance")
-    categories = xmlmap.NodeListField(xpath="gmd:topicCategory/gmd:MD_TopicCategoryCode",
-                                      node_class=Category)
-    bbox_lat_lon_list = xmlmap.NodeListField(xpath="gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox",
-                                             node_class=EXGeographicBoundingBox)
-    bounding_polygon_list = xmlmap.NodeListField(xpath="gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon",
-                                                 node_class=EXBoundingPolygon)
-    dimensions = xmlmap.NodeListField(xpath="gmd:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent",
-                                      node_class=Dimension)
 
 
 class SvOperationMetadata(BaseIsoMetadata):
@@ -421,13 +410,13 @@ class MdMetadata(BaseIsoMetadata):
     @property
     def dataset_id(self) -> str:
         child = self._get_child_identification()
-        if child:
+        if child and hasattr(child, "dataset_id"):
             return child.dataset_id
 
     @property
     def dataset_id_code_space(self) -> str:
         child = self._get_child_identification()
-        if child:
+        if child and hasattr(child, "dataset_id_code_space"):
             return child.dataset_id_code_space
 
     @property

@@ -90,6 +90,30 @@ class MDMetadataDatasetTestCase(SimpleTestCase):
                                       (min_x, min_y))))
         )
 
+    def test_field_dict(self):
+        min_x = 5.87
+        max_x = 15.04
+        min_y = 47.27
+        max_y = 55.06
+
+        b_g = MultiPolygon(GeosPolygon(((min_x, min_y),
+                                        (min_x, max_y),
+                                        (max_x, max_y),
+                                        (max_x, min_y),
+                                        (min_x, min_y))))
+
+        field_dict = self.parsed_metadata.transform_to_model()
+        expected = {
+            'file_identifier': 'de.dwd.geoserver.fach.RBSN_FF',
+            'date_stamp': datetime.fromisoformat("2019-05-16T12:55:18"),
+            'dataset_id': 'de.dwd.geoserver.fach.RBSN_FF',
+            'dataset_id_code_space': 'https://registry.gdi-de.org/id/de.bund.dwd/',
+            'bounding_geometry': b_g,
+            'title': "Windgeschwindigkeit an RBSN Stationen",
+            'abstract': "Messwerte der Windgeschwindigkeit an den DWD Stationen im Regional Basic Synoptic Network der WMO. Erweitert um weitere Stationen der Grundversorgung."
+        }
+        self.assertEqual(field_dict, expected)
+
 
 class MDMetadataServiceTestCase(SimpleTestCase):
 
@@ -183,7 +207,7 @@ class MDMetadataServiceTestCase(SimpleTestCase):
             'date_stamp': datetime.fromisoformat("2021-12-07").date(),
             'bounding_geometry': GeosPolygon.from_ewkt("MULTIPOLYGON (((8.21574798943722 47.69179998723602, 8.21574798943722 47.694387077303475, 8.218752644527196 47.694387077303475, 8.218752644527196 47.69179998723602, 8.21574798943722 47.69179998723602)))"),
             'title': "WFS XPlanung BPL „Vorderdorf Unterdorf 5. Änderung Erweiterung“",
-            'abstract': "WFS-Dienst des Bebauungsplans „Vorderdorf Unterdorf 5. Änderung Erweiterung“ der Gemeinde Weilheim aus XPlanung 5.0. Beschreibung: MD, WA, GBF Schule, VF."
+            'abstract': "WFS-Dienst des Bebauungsplans „Vorderdorf Unterdorf 5. Änderung Erweiterung“ der Gemeinde Weilheim aus XPlanung 5.0. Beschreibung: MD, WA, GBF Schule, VF.",
         }
         self.assertEqual(field_dict, expected)
 
