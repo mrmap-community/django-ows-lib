@@ -435,6 +435,30 @@ class MdMetadata(BaseIsoMetadata):
         if child:
             child.keywords = value
 
+    @property
+    def title(self):
+        child = self._get_child_identification()
+        if child:
+            return child.title
+
+    @title.setter
+    def title(self, value):
+        child = self._get_child_identification()
+        if child:
+            child.title = value
+
+    @property
+    def abstract(self):
+        child = self._get_child_identification()
+        if child:
+            return child.abstract
+
+    @abstract.setter
+    def abstract(self, value):
+        child = self._get_child_identification()
+        if child:
+            child.abstract = value
+
     def transform_to_model(self) -> Dict:
         attr = super().transform_to_model()
         if self.date_stamp:
@@ -447,6 +471,10 @@ class MdMetadata(BaseIsoMetadata):
             attr.update({"spatial_res_value": self.spatial_res_value})
         if self.bounding_geometry:
             attr.update({"bounding_geometry": self.bounding_geometry})
+        if self.title:
+            attr.update({"title": self.title})
+        if self.abstract:
+            attr.update({"abstract": self.abstract})
         return attr
 
 

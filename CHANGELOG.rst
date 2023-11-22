@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[v0.11.1] - 2023-11-22
+---------------------
+
+Fixed
+~~~~~
+
+* missing `title` and `abstract` property on iso metadata mapper.
+
+
 [v0.11.0] - 2023-11-21
 ---------------------
 

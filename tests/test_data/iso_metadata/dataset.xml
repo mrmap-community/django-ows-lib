@@ -184,9 +184,7 @@ Product identifier is compliant with DWD. The dot notation recommended by WMO-CB
                 </gmd:CI_Citation>
             </gmd:citation>
             <gmd:abstract xsi:type="gmd:PT_FreeText_PropertyType">
-                <gco:CharacterString>
-Messwerte der Windgeschwindigkeit an den DWD Stationen im Regional Basic Synoptic Network der WMO. Erweitert um weitere Stationen der Grundversorgung.
-                </gco:CharacterString>
+                <gco:CharacterString>Messwerte der Windgeschwindigkeit an den DWD Stationen im Regional Basic Synoptic Network der WMO. Erweitert um weitere Stationen der Grundversorgung.</gco:CharacterString>
                 <gmd:PT_FreeText>
                     <gmd:textGroup>
                         <gmd:LocalisedCharacterString locale="#EN">

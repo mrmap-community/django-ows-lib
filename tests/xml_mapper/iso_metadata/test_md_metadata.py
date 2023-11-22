@@ -20,11 +20,24 @@ class MDMetadataTestCase(SimpleTestCase):
     def setUp(self) -> None:
         self.parsed_metadata: MdMetadata = load_xmlobject_from_file(
             self.path, xmlclass=MdMetadata)
+        self.maxDiff = None
 
     def test_file_identifier(self):
         self.assertEqual(
             self.parsed_metadata.file_identifier,
             "de.dwd.geoserver.fach.RBSN_FF"
+        )
+
+    def test_title(self):
+        self.assertEqual(
+            self.parsed_metadata.title,
+            "Windgeschwindigkeit an RBSN Stationen"
+        )
+
+    def test_abstract(self):
+        self.assertEqual(
+            self.parsed_metadata.abstract,
+            "Messwerte der Windgeschwindigkeit an den DWD Stationen im Regional Basic Synoptic Network der WMO. Erweitert um weitere Stationen der Grundversorgung."
         )
 
     def test_dataset_id(self):
@@ -86,6 +99,7 @@ class WrappedMDMetadataTestCase(SimpleTestCase):
     def setUp(self) -> None:
         self.parsed_metadata: MdMetadata = load_xmlobject_from_file(
             self.path, xmlclass=WrappedIsoMetadata).iso_metadata[0]
+        self.maxDiff = None
 
     def test_field_dict(self):
         self.assertEqual(
@@ -98,6 +112,8 @@ class WrappedMDMetadataTestCase(SimpleTestCase):
             'file_identifier': '80b250a6-4dda-481d-8568-162e20c1cb7a',
             'date_stamp': datetime(2023, 9, 12, 6, 49, 23),
             'dataset_id': 'LK2022',
-            'bounding_geometry': GeosPolygon.from_ewkt("MULTIPOLYGON (((9.87 50.2, 9.87 51.64, 12.65 51.64, 12.65 50.2, 9.87 50.2)))")
+            'bounding_geometry': GeosPolygon.from_ewkt("MULTIPOLYGON (((9.87 50.2, 9.87 51.64, 12.65 51.64, 12.65 50.2, 9.87 50.2)))"),
+            'title': 'Lärmkartierung 2022',
+            'abstract': 'Lärmkartierung von Hauptverkehrsstraßen gemäß EU-Umgebungslärmrichtlinie, Aktualisierungszyklus: 4. Stufe'
         }
         self.assertEqual(field_dict, expected)
