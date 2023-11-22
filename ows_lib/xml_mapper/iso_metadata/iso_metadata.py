@@ -256,7 +256,7 @@ class MdDataIdentification(BasicInformation):
                                       node_class=Dimension)
 
 
-class SvOperationMetadata(BasicInformation):
+class SvOperationMetadata(BaseIsoMetadata):
     ROOT_NS = SRV_NAMESPACE
     ROOT_NAME = "SV_OperationMetadata"
     ROOT_NAMESPACES = {
@@ -274,7 +274,7 @@ class SvOperationMetadata(BasicInformation):
         xpath="srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL")
 
 
-class SvServiceIdentification(BaseIsoMetadata):
+class SvServiceIdentification(BasicInformation):
     ROOT_NS = GMD_NAMESPACE
     ROOT_NAME = "SV_ServiceIdentification"
     ROOT_NAMESPACES = {
@@ -315,7 +315,8 @@ class MdMetadata(BaseIsoMetadata):
     ROOT_NS = GMD_NAMESPACE
     ROOT_NAMESPACES = {
         "gmd": GMD_NAMESPACE,
-        "gco": GCO_NAMESPACE
+        "gco": GCO_NAMESPACE,
+        "srv": SRV_NAMESPACE,
     }
 
     file_identifier = xmlmap.StringField(
@@ -340,7 +341,7 @@ class MdMetadata(BaseIsoMetadata):
 
     _md_data_identification = xmlmap.NodeField(xpath="gmd:identificationInfo/gmd:MD_DataIdentification",
                                                node_class=MdDataIdentification)
-    _sv_service_identification = xmlmap.NodeField(xpath="gmd:identificationInfo/gmd:SV_ServiceIdentification",
+    _sv_service_identification = xmlmap.NodeField(xpath="gmd:identificationInfo/srv:SV_ServiceIdentification",
                                                   node_class=SvServiceIdentification)
 
     def _get_child_identification(self):
@@ -428,6 +429,7 @@ class MdMetadata(BaseIsoMetadata):
         child = self._get_child_identification()
         if child:
             return child.keywords
+        return []
 
     @keywords.setter
     def keywords(self, value):

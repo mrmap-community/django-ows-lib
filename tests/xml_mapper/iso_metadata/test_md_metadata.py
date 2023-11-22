@@ -12,7 +12,7 @@ from ows_lib.xml_mapper.iso_metadata.iso_metadata import (MdMetadata,
 from tests.settings import DJANGO_TEST_ROOT_DIR
 
 
-class MDMetadataTestCase(SimpleTestCase):
+class MDMetadataDatasetTestCase(SimpleTestCase):
 
     path = os.path.join(DJANGO_TEST_ROOT_DIR,
                         "test_data/iso_metadata/dataset.xml")
@@ -89,6 +89,103 @@ class MDMetadataTestCase(SimpleTestCase):
                                       (max_x, min_y),
                                       (min_x, min_y))))
         )
+
+
+class MDMetadataServiceTestCase(SimpleTestCase):
+
+    path = os.path.join(DJANGO_TEST_ROOT_DIR,
+                        "test_data/iso_metadata/service.xml")
+
+    def setUp(self) -> None:
+        self.parsed_metadata: MdMetadata = load_xmlobject_from_file(
+            self.path, xmlclass=MdMetadata)
+        self.maxDiff = None
+
+    def test_file_identifier(self):
+        self.assertEqual(
+            self.parsed_metadata.file_identifier,
+            "c824eab2-5226-46c2-b4ae-3e5c518a9be7"
+        )
+
+    def test_title(self):
+        self.assertEqual(
+            self.parsed_metadata.title,
+            "WFS XPlanung BPL „Vorderdorf Unterdorf 5. Änderung Erweiterung“"
+        )
+
+    def test_abstract(self):
+        self.assertEqual(
+            self.parsed_metadata.abstract,
+            "WFS-Dienst des Bebauungsplans „Vorderdorf Unterdorf 5. Änderung Erweiterung“ der Gemeinde Weilheim aus XPlanung 5.0. Beschreibung: MD, WA, GBF Schule, VF."
+        )
+
+    def test_date_stamp(self):
+        self.assertEqual(
+            self.parsed_metadata.date_stamp,
+            datetime.fromisoformat("2021-12-07").date()
+        )
+
+    def test_keywords(self):
+        self.assertEqual(
+            [kw.keyword for kw in self.parsed_metadata.keywords],
+            [
+                "Bodennutzung",
+                "Vorderdorf Unterdorf 5. Änderung Erweiterung",
+                'infoFeatureAccessService',
+                'Bauplätze',
+                'Gemeinde Weilheim',
+                'Bebauungsplan',
+                'Bauleitplan',
+                'XPlanGML',
+                'B-Plan',
+                'Bauvorschrift',
+                'Bauplatz',
+                'Bebauungspläne',
+                'XPlanung 5.0',
+                'Bauleitpläne',
+                '727',
+                'XPlanung',
+                'GDI-BW'
+            ]
+        )
+
+    def test_ref_system(self):
+
+        self.assertEqual(
+            [ref_system.transform_to_model()
+             for ref_system in self.parsed_metadata.reference_systems],
+            [ReferenceSystem(code="EPSG:25832").transform_to_model(),
+             ReferenceSystem(code="EPSG:31467").transform_to_model(),
+             ReferenceSystem(code="EPSG:4326").transform_to_model(),
+             ReferenceSystem(code="EPSG:4258").transform_to_model()]
+        )
+
+    def test_bounding_geometry_getter(self):
+        min_x = 8.21574798943722
+        max_x = 8.218752644527196
+        min_y = 47.69179998723602
+        max_y = 47.694387077303475
+
+        self.assertEqual(
+            self.parsed_metadata.bounding_geometry,
+
+            MultiPolygon(GeosPolygon(((min_x, min_y),
+                                      (min_x, max_y),
+                                      (max_x, max_y),
+                                      (max_x, min_y),
+                                      (min_x, min_y))))
+        )
+
+    def test_field_dict(self):
+        field_dict = self.parsed_metadata.transform_to_model()
+        expected = {
+            'file_identifier': 'c824eab2-5226-46c2-b4ae-3e5c518a9be7',
+            'date_stamp': datetime.fromisoformat("2021-12-07").date(),
+            'bounding_geometry': GeosPolygon.from_ewkt("MULTIPOLYGON (((8.21574798943722 47.69179998723602, 8.21574798943722 47.694387077303475, 8.218752644527196 47.694387077303475, 8.218752644527196 47.69179998723602, 8.21574798943722 47.69179998723602)))"),
+            'title': "WFS XPlanung BPL „Vorderdorf Unterdorf 5. Änderung Erweiterung“",
+            'abstract': "WFS-Dienst des Bebauungsplans „Vorderdorf Unterdorf 5. Änderung Erweiterung“ der Gemeinde Weilheim aus XPlanung 5.0. Beschreibung: MD, WA, GBF Schule, VF."
+        }
+        self.assertEqual(field_dict, expected)
 
 
 class WrappedMDMetadataTestCase(SimpleTestCase):

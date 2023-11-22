@@ -15,6 +15,7 @@ Fixed
 ~~~~~
 
 * missing `title` and `abstract` property on iso metadata mapper.
+* iso service metadata mapper
 
 
 [v0.11.0] - 2023-11-21
