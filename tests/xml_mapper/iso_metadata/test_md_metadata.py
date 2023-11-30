@@ -40,15 +40,15 @@ class MDMetadataDatasetTestCase(SimpleTestCase):
             "Messwerte der Windgeschwindigkeit an den DWD Stationen im Regional Basic Synoptic Network der WMO. Erweitert um weitere Stationen der Grundversorgung."
         )
 
-    def test_dataset_id(self):
+    def test_code(self):
         self.assertEqual(
-            self.parsed_metadata.dataset_id,
+            self.parsed_metadata.code,
             "de.dwd.geoserver.fach.RBSN_FF"
         )
 
-    def test_dataset_id_code_space(self):
+    def test_code_space(self):
         self.assertEqual(
-            self.parsed_metadata.dataset_id_code_space,
+            self.parsed_metadata.code_space,
             "https://registry.gdi-de.org/id/de.bund.dwd/"
         )
 
@@ -106,8 +106,8 @@ class MDMetadataDatasetTestCase(SimpleTestCase):
         expected = {
             'file_identifier': 'de.dwd.geoserver.fach.RBSN_FF',
             'date_stamp': datetime.fromisoformat("2019-05-16T12:55:18"),
-            'dataset_id': 'de.dwd.geoserver.fach.RBSN_FF',
-            'dataset_id_code_space': 'https://registry.gdi-de.org/id/de.bund.dwd/',
+            'code': 'de.dwd.geoserver.fach.RBSN_FF',
+            'code_space': 'https://registry.gdi-de.org/id/de.bund.dwd/',
             'bounding_geometry': b_g,
             'title': "Windgeschwindigkeit an RBSN Stationen",
             'abstract': "Messwerte der Windgeschwindigkeit an den DWD Stationen im Regional Basic Synoptic Network der WMO. Erweitert um weitere Stationen der Grundversorgung."
@@ -232,7 +232,7 @@ class WrappedMDMetadataTestCase(SimpleTestCase):
         expected = {
             'file_identifier': '80b250a6-4dda-481d-8568-162e20c1cb7a',
             'date_stamp': datetime(2023, 9, 12, 6, 49, 23),
-            'dataset_id': 'LK2022',
+            'code': 'LK2022',
             'bounding_geometry': GeosPolygon.from_ewkt("MULTIPOLYGON (((9.87 50.2, 9.87 51.64, 12.65 51.64, 12.65 50.2, 9.87 50.2)))"),
             'title': 'Lärmkartierung 2022',
             'abstract': 'Lärmkartierung von Hauptverkehrsstraßen gemäß EU-Umgebungslärmrichtlinie, Aktualisierungszyklus: 4. Stufe'

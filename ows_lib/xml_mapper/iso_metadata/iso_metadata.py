@@ -198,7 +198,42 @@ class BasicInformation(BaseIsoMetadata):
     keywords = xmlmap.NodeListField(xpath="gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword",
                                     node_class=Keyword)
 
+    _code_md = xmlmap.StringField(
+        xpath="gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
+
     is_broken = False  # flag to signal that this metadata object has integrity error
+
+    def _parse_identifier(self):
+        _code = ""
+        _code_space = ""
+        if self._code_md:
+            # new implementation:
+            # http://inspire.ec.europa.eu/file/1705/download?token=iSTwpRWd&usg=AOvVaw18y1aTdkoMCBxpIz7tOOgu
+            # from 2017-03-02 - the MD_Identifier - see C.2.5 Unique resource identifier - it is separated with a slash
+            # - the codes pace should be everything after the last slash
+            # now try to check if a single slash is available and if the md_identifier is a url
+            parsed_url = urllib.parse.urlsplit(self._code_md)
+            if parsed_url.scheme == "http" or parsed_url.scheme == "https" and "/" in parsed_url.path:
+                tmp = self._code_md.split("/")
+                _code = tmp[len(tmp) - 1]
+                _code_space = self._code_md.replace(_code, "")
+            elif parsed_url.scheme == "http" or parsed_url.scheme == "https" and "#" in self._code_md:
+                tmp = self._code_md.split("#")
+                _code = tmp[1]
+                _code_space = tmp[0]
+            else:
+                _code = self._code_md
+                _code_space = ""
+
+        return _code.replace('\n', '').strip(), _code_space.replace('\n', '').strip()
+
+    @property
+    def code(self) -> str:
+        return self._parse_identifier()[0]
+
+    @property
+    def code_space(self) -> str:
+        return self._parse_identifier()[1]
 
 
 class MdDataIdentification(BasicInformation):
@@ -215,40 +250,6 @@ class MdDataIdentification(BasicInformation):
                                                  node_class=EXBoundingPolygon)
     dimensions = xmlmap.NodeListField(xpath="gmd:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent",
                                       node_class=Dimension)
-    _code_md = xmlmap.StringField(
-        xpath="gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
-
-    def _parse_identifier(self):
-        _dataset_id = ""
-        _code_space = ""
-        if self._code_md:
-            # new implementation:
-            # http://inspire.ec.europa.eu/file/1705/download?token=iSTwpRWd&usg=AOvVaw18y1aTdkoMCBxpIz7tOOgu
-            # from 2017-03-02 - the MD_Identifier - see C.2.5 Unique resource identifier - it is separated with a slash
-            # - the codes pace should be everything after the last slash
-            # now try to check if a single slash is available and if the md_identifier is a url
-            parsed_url = urllib.parse.urlsplit(self._code_md)
-            if parsed_url.scheme == "http" or parsed_url.scheme == "https" and "/" in parsed_url.path:
-                tmp = self._code_md.split("/")
-                _dataset_id = tmp[len(tmp) - 1]
-                _code_space = self._code_md.replace(_dataset_id, "")
-            elif parsed_url.scheme == "http" or parsed_url.scheme == "https" and "#" in self._code_md:
-                tmp = self._code_md.split("#")
-                _dataset_id = tmp[1]
-                _code_space = tmp[0]
-            else:
-                _dataset_id = self._code_md
-                _code_space = ""
-
-        return _dataset_id.replace('\n', '').strip(), _code_space.replace('\n', '').strip()
-
-    @property
-    def dataset_id(self) -> str:
-        return self._parse_identifier()[0]
-
-    @property
-    def dataset_id_code_space(self) -> str:
-        return self._parse_identifier()[1]
 
 
 class SvOperationMetadata(BaseIsoMetadata):
@@ -408,16 +409,16 @@ class MdMetadata(BaseIsoMetadata):
         raise NotImplementedError()
 
     @property
-    def dataset_id(self) -> str:
+    def code(self) -> str:
         child = self._get_child_identification()
-        if child and hasattr(child, "dataset_id"):
-            return child.dataset_id
+        if child and hasattr(child, "code"):
+            return child.code
 
     @property
-    def dataset_id_code_space(self) -> str:
+    def code_space(self) -> str:
         child = self._get_child_identification()
-        if child and hasattr(child, "dataset_id_code_space"):
-            return child.dataset_id_code_space
+        if child and hasattr(child, "code_space"):
+            return child.code_space
 
     @property
     def keywords(self) -> List[str]:
@@ -460,10 +461,10 @@ class MdMetadata(BaseIsoMetadata):
         attr = super().transform_to_model()
         if self.date_stamp:
             attr.update({"date_stamp": self.date_stamp})
-        if self.dataset_id:
-            attr.update({"dataset_id": self.dataset_id})
-        if self.dataset_id_code_space:
-            attr.update({"dataset_id_code_space": self.dataset_id_code_space})
+        if self.code:
+            attr.update({"code": self.code})
+        if self.code_space:
+            attr.update({"code_space": self.code_space})
         if self.spatial_res_value:
             attr.update({"spatial_res_value": self.spatial_res_value})
         if self.bounding_geometry:
