@@ -55,7 +55,7 @@ class EXGeographicBoundingBox(xmlmap.XmlObject):
 
     @property
     def geometry(self) -> GeosPolygon:
-        if self._min_x and self._max_x and self._min_y and self._max_y:
+        if self._min_x is not None and self._max_x is not None and self._min_y is not None and self._max_y is not None:
             return GeosPolygon(((self._min_x, self._min_y),
                                (self._min_x, self._max_y),
                                (self._max_x, self._max_y),
@@ -368,9 +368,11 @@ class MdMetadata(BaseIsoMetadata):
         if child:
             polygon_list = []
             for bbox in child.bbox_lat_lon_list:
-                polygon_list.append(bbox.geometry)
+                if bbox.geometry:
+                    polygon_list.append(bbox.geometry)
             for polygon in child.bounding_polygon_list:
-                polygon_list.extend(polygon.geometries)
+                if polygon.geometries:
+                    polygon_list.extend(polygon.geometries)
             return MultiPolygon(polygon_list)
 
     @bounding_geometry.setter
