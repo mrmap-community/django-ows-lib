@@ -8,7 +8,8 @@ from eulxml import xmlmap
 from ows_lib.xml_mapper.gml.gml import Gml
 from ows_lib.xml_mapper.mixins import CustomXmlObject
 from ows_lib.xml_mapper.namespaces import (GCO_NAMESPACE, GMD_NAMESPACE,
-                                           GML_3_1_1_NAMESPACE, SRV_NAMESPACE)
+                                           GML_3_1_1_NAMESPACE, GMX_NAMESPACE,
+                                           SRV_NAMESPACE)
 
 
 class Keyword(CustomXmlObject, xmlmap.XmlObject):
@@ -99,7 +100,8 @@ class ReferenceSystem(CustomXmlObject, xmlmap.XmlObject):
     ROOT_NAME = "RS_Identifier"
     ROOT_NS = "gmd"
     ROOT_NAMESPACES = dict([("gmd", GMD_NAMESPACE),
-                            ("gco", GCO_NAMESPACE)])
+                            ("gco", GCO_NAMESPACE),
+                            ("gmx", GMX_NAMESPACE)])
 
     _ref_system = xmlmap.StringField(xpath="gmd:code/gco:CharacterString")
     _gmx_ref_system = xmlmap.StringField(xpath="gmd:code/gmx:Anchor")
