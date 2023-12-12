@@ -131,7 +131,7 @@ class ReferenceSystem(CustomXmlObject, xmlmap.XmlObject):
     @property
     def code(self):
         code, _ = self._parse_ref_system()
-        return code
+        return code or ""
 
     @code.setter
     def code(self, value):
@@ -143,7 +143,7 @@ class ReferenceSystem(CustomXmlObject, xmlmap.XmlObject):
     @property
     def prefix(self):
         _, prefix = self._parse_ref_system()
-        return prefix
+        return prefix or ""
 
     @prefix.setter
     def prefix(self, value):
