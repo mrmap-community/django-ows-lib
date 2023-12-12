@@ -126,7 +126,7 @@ class ReferenceSystem(CustomXmlObject, xmlmap.XmlObject):
 
             return code, prefix
         else:
-            return None
+            return None, None
 
     @property
     def code(self):
