@@ -87,7 +87,7 @@ class EXBoundingPolygon(xmlmap.XmlObject):
         """
         geometries = []
         for geometry in self._geometry_list:
-            geometries.append(geometry.to_geometry())
+            geometries.append(geometry.to_geometry)
         return MultiPolygon(geometries)
 
     @geometries.setter
