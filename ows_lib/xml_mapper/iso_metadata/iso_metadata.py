@@ -469,6 +469,8 @@ class MdMetadata(BaseIsoMetadata):
             attr.update({"code": self.code})
         if self.code_space:
             attr.update({"code_space": self.code_space})
+        if self.spatial_res_type:
+            attr.update({"spatial_res_type": self.spatial_res_type})
         if self.spatial_res_value:
             attr.update({"spatial_res_value": self.spatial_res_value})
         if self.bounding_geometry:
