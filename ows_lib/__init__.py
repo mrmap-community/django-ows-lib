@@ -1,2 +1,2 @@
-__version__ = "0.12.7"
+__version__ = "0.13.0"
 VERSION = __version__  # synonym

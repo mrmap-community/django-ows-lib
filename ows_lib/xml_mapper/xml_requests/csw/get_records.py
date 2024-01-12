@@ -21,6 +21,7 @@ class GetRecordsRequest(XmlObject):
     service_version = StringField(xpath="./@version")
     service_type = StringField(xpath="./@service")
     result_type = StringField(xpath="./@resultType")
+    start_position = StringField(xpath="./@startPosition")
     max_records = StringField(xpath="./@maxRecords")
     element_set_name = StringField(xpath="./csw:Query/csw:ElementSetName")
     type_names = StringField(xpath="./csw:Query/@typeNames")
