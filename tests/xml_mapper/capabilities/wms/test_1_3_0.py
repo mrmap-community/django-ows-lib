@@ -1,11 +1,11 @@
 import os
 
 from django.test import SimpleTestCase
+
 from ows_lib.xml_mapper.capabilities.wms.wms130 import WebMapService
 from ows_lib.xml_mapper.namespaces import WMS_1_3_0_NAMESPACE, XLINK_NAMESPACE
-from tests.xml_mapper.capabilities.wms.mixins import \
-    WebMapServiceTestCase
 from tests.settings import DJANGO_TEST_ROOT_DIR
+from tests.xml_mapper.capabilities.wms.mixins import WebMapServiceTestCase
 
 
 class WebMapService130TestCase(WebMapServiceTestCase, SimpleTestCase):
