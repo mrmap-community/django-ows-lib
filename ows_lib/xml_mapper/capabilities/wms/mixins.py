@@ -271,6 +271,12 @@ class LayerMixin:
             descendants.extend(child.descendants)
         return descendants
 
+    def transform_to_model(self) -> Dict:
+        attr = super().transform_to_model()
+        if self.bbox_lat_lon:
+            attr.update({"bbox_lat_lon": self.bbox_lat_lon})
+        return attr
+
 
 class WebMapServiceMixin(OGCServiceMixin):
     """Abstract class for WebMapService xml mappers,

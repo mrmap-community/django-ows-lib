@@ -258,6 +258,30 @@ class WebMapServiceTestCase:
             "https://registry.gdi-de.org/id/de.bund.dwd/de.dwd.geoserver.fach.RBSN_FF"
         )
 
+        self.assertDictEqual(
+            self.parsed_capabilities.root_layer.transform_to_model(),
+            {
+                "abstract": "This is the Web Map Server of DWD.",
+                "bbox_lat_lon": Polygon(
+                    (
+                        (-180, -90),
+                        (-180, 90),
+                        (180, 90),
+                        (180, -90),
+                        (-180, -90)
+                    )
+                ),
+                "identifier": "root_layer",
+                "is_cascaded": True,
+                "is_opaque": True,
+                "is_queryable": True,
+                "scale_max": 8.7308025,
+                "scale_min": 4.989528903,
+                "title": "DWD GeoServer WMS"
+            }
+
+        )
+
     def test_wms_xml_mapper(self):
         self._test_root_mapper()
         self._test_service_metadata_mapper()
