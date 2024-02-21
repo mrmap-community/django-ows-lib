@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-[v0.13.0] - 2024-02-21
+[v0.14.0] - 2024-02-21
 ---------------------
 
 Fixed
@@ -14,6 +14,24 @@ Fixed
 
 * added missing `bbox_lat_lon` value inside `transform_to_model` of Layer mapper
 
+
+
+[v0.13.0] - 2023-12-15
+---------------------
+
+Added
+~~~~~
+
+* add missing `startPosition` parameter inside get records xml mapper.
+
+
+[v0.12.7] - 2023-12-15
+---------------------
+
+Fixed
+~~~~~
+
+* add missing `spatial_res_type` inside `transform_to_model` function
 
 
 [v0.12.6] - 2023-12-12

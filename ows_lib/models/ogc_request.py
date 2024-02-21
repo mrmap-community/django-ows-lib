@@ -5,7 +5,6 @@ from django.db.models.query_utils import Q
 from django.http.request import HttpRequest as DjangoRequest
 from eulxml.xmlmap import XmlObject, load_xmlobject_from_string
 from lark.exceptions import LarkError
-from lxml import etree
 from lxml.etree import XMLSyntaxError
 from pygeofilter.backends.django.evaluate import to_filter
 from pygeofilter.parsers.ecql import parse as parse_ecql
@@ -338,6 +337,8 @@ class OGCRequest(Request):
                         "SERVICE")
                     self._xml_request.result_type = self.ogc_query_params.get(
                         "resultType")
+                    self._xml_request.start_position = self.ogc_query_params.get(
+                        "startPosition")
                     self._xml_request.max_records = self.ogc_query_params.get(
                         "maxRecords")
                     self._xml_request.element_set_name = self.ogc_query_params.get(
