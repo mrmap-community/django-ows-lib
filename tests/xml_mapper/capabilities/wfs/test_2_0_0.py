@@ -354,6 +354,18 @@ class WebFeatureServiceTestCase(SimpleTestCase):
             self.parsed_capabilities.service_type.version, self.version)
         self.assertEqual(self.parsed_capabilities.service_type.name, "wfs")
 
+        self.assertEqual(
+            self.parsed_capabilities.transform_to_model(),
+            {
+                'abstract': 'This is the Web Feature Server of DWD.',
+                'access_constraints': 'http://www.dwd.de/DE/service/copyright/copyright_node.html',
+                'fees': 'none',
+                'title': 'DWD GeoServer WFS',
+                'version': self.version
+            }
+
+        )
+
     def _test_feature_type_mapper(self):
         ft = self.parsed_capabilities.get_feature_type_by_identifier(
             "dwd:RBSN_T2m")

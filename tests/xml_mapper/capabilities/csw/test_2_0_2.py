@@ -133,6 +133,18 @@ class CatalogueServiceDeserializeTestCase(SimpleTestCase):
             self.parsed_capabilities.service_type.version, self.version)
         self.assertEqual(self.parsed_capabilities.service_type.name, "csw")
 
+        self.assertEqual(
+            self.parsed_capabilities.transform_to_model(),
+            {
+                'abstract': 'this is the official CSW of the Geoportal Hessen based on pycsw, an OGC CSW server implementation written in Python',
+                'access_constraints': 'None',
+                'fees': 'None',
+                'title': 'CSW Geoportal Hessen',
+                'version': self.version
+            }
+
+        )
+
     def test_wms_xml_mapper(self):
         self._test_service_metadata_mapper()
         self._test_service_contact_mapper()

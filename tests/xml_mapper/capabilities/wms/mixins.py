@@ -200,6 +200,19 @@ class WebMapServiceTestCase:
             self.parsed_capabilities.service_type.version, self.version)
         self.assertEqual(self.parsed_capabilities.service_type.name, "wms")
 
+        self.assertEqual(
+            self.parsed_capabilities.transform_to_model(),
+            {
+                'abstract': 'This is the Web Map Server of DWD.',
+                'access_constraints': 'http://www.dwd.de/DE/service/copyright/copyright_node.html',
+                'fees': 'none',
+                'service_url': 'https://maps.dwd.de/geoserver/',
+                'title': 'DWD GeoServer WMS',
+                'version': self.version
+            }
+
+        )
+
     def _test_layer_mapper(self):
         self.assertEqual(
             self.parsed_capabilities.root_layer.scale_min,

@@ -293,3 +293,9 @@ class OGCServiceMixin:
                 replaced: parse.ParseResult = parsed._replace(
                     netloc=new_domain)
             operation_url.url = replaced.geturl()
+
+    def transform_to_model(self) -> Dict:
+        attr = super().transform_to_model()
+        if self.service_type and self.service_type.version:
+            attr.update({"version": self.service_type.version})
+        return attr
