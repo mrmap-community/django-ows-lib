@@ -69,7 +69,7 @@ class LegendUrl(WebMapServiceDefaultSettings):
     ROOT_NAME = "LegendUrl"
 
     legend_url = StringField(
-        xpath="./wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:OnlineResource/@xlink:href")
     height = IntegerField(xpath="./@height")
     width = IntegerField(xpath="./@width")
     mime_type = NodeField(xpath="./wms:Format", node_class=MimeType)
@@ -84,7 +84,7 @@ class Style(WebMapServiceDefaultSettings):
 
 
 class RemoteMetadata(WebMapServiceDefaultSettings):
-    ROOT_NAME = "OnlineResource[@xlink:type='simple']/@xlink:href"
+    ROOT_NAME = "OnlineResource/@xlink:href"
     link = StringField(
         xpath="./@xlink:href")
 
@@ -123,7 +123,7 @@ class Layer(LayerMixin, WebMapServiceDefaultSettings):
     children = NodeListField(xpath="./wms:Layer", node_class="self")
 
     remote_metadata = NodeListField(
-        xpath="./wms:MetadataURL/wms:OnlineResource[@xlink:type='simple']",
+        xpath="./wms:MetadataURL/wms:OnlineResource",
         node_class=RemoteMetadata)
 
 
@@ -137,7 +137,7 @@ class WebMapService(WebMapServiceMixin, WebMapServiceDefaultSettings):
     access_constraints = StringField(
         xpath="./wms:Service/wms:AccessConstraints")
     service_url = StringField(
-        xpath="./wms:Service/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Service/wms:OnlineResource/@xlink:href")
 
     # ForeignKey
     service_contact = NodeField(xpath="./wms:Service/wms:ContactInformation",
@@ -161,41 +161,41 @@ class WebMapService(WebMapServiceMixin, WebMapServiceDefaultSettings):
     _get_capabilities_mime_types = StringListField(
         xpath="./wms:Capability/wms:Request/wms:GetCapabilities/wms:Format")
     _get_capabilities_get_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:GetCapabilities/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:GetCapabilities/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource/@xlink:href")
     _get_capabilities_post_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:GetCapabilities/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:GetCapabilities/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource/@xlink:href")
 
     _get_map_mime_types = StringListField(
         xpath="./wms:Capability/wms:Request/wms:GetMap/wms:Format")
     _get_map_get_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:GetMap/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:GetMap/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource/@xlink:href")
     _get_map_post_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:GetMap/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:GetMap/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource/@xlink:href")
 
     _get_feature_info_mime_types = StringListField(
         xpath="./wms:Capability/wms:Request/wms:GetFeatureInfo/wms:Format")
     _get_feature_info_get_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:GetFeatureInfo/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:GetFeatureInfo/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource/@xlink:href")
     _get_feature_info_post_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:GetFeatureInfo/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:GetFeatureInfo/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource/@xlink:href")
 
     _describe_layer_mime_types = StringListField(
         xpath="./wms:Capability/wms:Request/wms:DescribeLayer/wms:Format")
     _describe_layer_get_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:DescribeLayer/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:DescribeLayer/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource/@xlink:href")
     _describe_layer_post_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:DescribeLayer/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:DescribeLayer/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource/@xlink:href")
 
     _get_legend_graphic_mime_types = StringListField(
         xpath="./wms:Capability/wms:Request/wms:GetLegendGraphic/wms:Format")
     _get_legend_graphic_get_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:GetLegendGraphic/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:GetLegendGraphic/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource/@xlink:href")
     _get_legend_graphic_post_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:GetLegendGraphic/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:GetLegendGraphic/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource/@xlink:href")
 
     _get_styles_mime_types = StringListField(
         xpath="./wms:Capability/wms:Request/wms:GetStyles/wms:Format")
     _get_styles_get_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:GetStyles/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:GetStyles/wms:DCPType/wms:HTTP/wms:Get/wms:OnlineResource/@xlink:href")
     _get_styles_post_url = StringField(
-        xpath="./wms:Capability/wms:Request/wms:GetStyles/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./wms:Capability/wms:Request/wms:GetStyles/wms:DCPType/wms:HTTP/wms:Post/wms:OnlineResource/@xlink:href")

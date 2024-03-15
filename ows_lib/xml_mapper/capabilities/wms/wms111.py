@@ -68,7 +68,7 @@ class LegendUrl(WebMapServiceDefaultSettings):
     ROOT_NAME = "LegendUrl"
 
     legend_url = StringField(
-        xpath="./OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./OnlineResource/@xlink:href")
     height = IntegerField(xpath="./@height")
     width = IntegerField(xpath="./@width")
     mime_type = NodeField(xpath="./Format", node_class=MimeType)
@@ -83,7 +83,7 @@ class Style(WebMapServiceDefaultSettings):
 
 
 class RemoteMetadata(WebMapServiceDefaultSettings):
-    ROOT_NAME = "OnlineResource[@xlink:type='simple']/@xlink:href"
+    ROOT_NAME = "OnlineResource/@xlink:href"
     link = StringField(
         xpath="./@xlink:href")
 
@@ -124,7 +124,7 @@ class Layer(LayerMixin, WebMapServiceDefaultSettings):
     children = NodeListField(xpath="./Layer", node_class="self")
 
     remote_metadata = NodeListField(
-        xpath="./MetadataURL/OnlineResource[@xlink:type='simple']",
+        xpath="./MetadataURL/OnlineResource",
         node_class=RemoteMetadata)
 
 
@@ -145,7 +145,7 @@ class WebMapService(WebMapServiceMixin, WebMapServiceDefaultSettings):
     keywords = StringListField(xpath="./Service/KeywordList/Keyword")
 
     service_url = StringField(
-        xpath="./Service/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Service/OnlineResource/@xlink:href")
 
     service_type = NodeField(xpath=".", node_class=ServiceType)
 
@@ -161,41 +161,41 @@ class WebMapService(WebMapServiceMixin, WebMapServiceDefaultSettings):
     _get_capabilities_mime_types = StringListField(
         xpath="./Capability/Request/GetCapabilities/Format")
     _get_capabilities_get_url = StringField(
-        xpath="./Capability/Request/GetCapabilities/DCPType/HTTP/Get/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/GetCapabilities/DCPType/HTTP/Get/OnlineResource/@xlink:href")
     _get_capabilities_post_url = StringField(
-        xpath="./Capability/Request/GetCapabilities/DCPType/HTTP/Post/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/GetCapabilities/DCPType/HTTP/Post/OnlineResource/@xlink:href")
 
     _get_map_mime_types = StringListField(
         xpath="./Capability/Request/GetMap/Format")
     _get_map_get_url = StringField(
-        xpath="./Capability/Request/GetMap/DCPType/HTTP/Get/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/GetMap/DCPType/HTTP/Get/OnlineResource/@xlink:href")
     _get_map_post_url = StringField(
-        xpath="./Capability/Request/GetMap/DCPType/HTTP/Post/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/GetMap/DCPType/HTTP/Post/OnlineResource/@xlink:href")
 
     _get_feature_info_mime_types = StringListField(
         xpath="./Capability/Request/GetFeatureInfo/Format")
     _get_feature_info_get_url = StringField(
-        xpath="./Capability/Request/GetFeatureInfo/DCPType/HTTP/Get/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/GetFeatureInfo/DCPType/HTTP/Get/OnlineResource/@xlink:href")
     _get_feature_info_post_url = StringField(
-        xpath="./Capability/Request/GetFeatureInfo/DCPType/HTTP/Post/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/GetFeatureInfo/DCPType/HTTP/Post/OnlineResource/@xlink:href")
 
     _describe_layer_mime_types = StringListField(
         xpath="./Capability/Request/DescribeLayer/Format")
     _describe_layer_get_url = StringField(
-        xpath="./Capability/Request/DescribeLayer/DCPType/HTTP/Get/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/DescribeLayer/DCPType/HTTP/Get/OnlineResource/@xlink:href")
     _describe_layer_post_url = StringField(
-        xpath="./Capability/Request/DescribeLayer/DCPType/HTTP/Post/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/DescribeLayer/DCPType/HTTP/Post/OnlineResource/@xlink:href")
 
     _get_legend_graphic_mime_types = StringListField(
         xpath="./Capability/Request/GetLegendGraphic/Format")
     _get_legend_graphic_get_url = StringField(
-        xpath="./Capability/Request/GetLegendGraphic/DCPType/HTTP/Get/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/GetLegendGraphic/DCPType/HTTP/Get/OnlineResource/@xlink:href")
     _get_legend_graphic_post_url = StringField(
-        xpath="./Capability/Request/GetLegendGraphic/DCPType/HTTP/Post/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/GetLegendGraphic/DCPType/HTTP/Post/OnlineResource/@xlink:href")
 
     _get_styles_mime_types = StringListField(
         xpath="./Capability/Request/GetStyles/Format")
     _get_styles_get_url = StringField(
-        xpath="./Capability/Request/GetStyles/DCPType/HTTP/Get/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/GetStyles/DCPType/HTTP/Get/OnlineResource/@xlink:href")
     _get_styles_post_url = StringField(
-        xpath="./Capability/Request/GetStyles/DCPType/HTTP/Post/OnlineResource[@xlink:type='simple']/@xlink:href")
+        xpath="./Capability/Request/GetStyles/DCPType/HTTP/Post/OnlineResource/@xlink:href")
