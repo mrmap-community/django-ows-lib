@@ -137,8 +137,8 @@ class TimeDimensionMixin:
                                  for time_extent in self.time_extents])
 
     def __parse_extent_value(self, start, stop, resolution) -> tuple:
-        _start = parse_datetime(start)  # iso date time
-        _stop = parse_datetime(stop)  # iso date time
+        _start = self.__parse_datetime_or_date(start)  # iso date time
+        _stop = self.__parse_datetime_or_date(stop)  # iso date time
         try:
             _resolution = int(resolution)
         except ValueError:

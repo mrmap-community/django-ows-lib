@@ -1,5 +1,7 @@
 from django.contrib.gis.geos import Polygon
+from django.utils import timezone
 from eulxml.xmlmap import load_xmlobject_from_file
+from isodate import parse_date
 from isodate.isodatetime import parse_datetime
 from isodate.isoduration import parse_duration
 
@@ -480,6 +482,25 @@ class WebMapServiceTestCase:
         self.assertEqual(
             parsed_extent.resolution,
             parse_duration("PT5M")
+        )
+
+    def test_layer_dimension_mapper_with_simple_year(self):
+        parsed_layer: Layer = self.parsed_capabilities.get_layer_by_identifier(
+            "dwd:Autowarn_Vorhersage")
+
+        parsed_extent: TimeExtent = parsed_layer.dimensions[0].time_extents[0]
+
+        self.assertEqual(
+            parsed_extent.start,
+            parse_date("1994")
+        )
+        self.assertEqual(
+            parsed_extent.stop,
+            parse_date("2021")
+        )
+        self.assertEqual(
+            parsed_extent.resolution,
+            parse_duration("P1Y").totimedelta(start=timezone.now())
         )
 
     def test_layer_dimension_time_extent_setter_with_list_of_intervals(self):

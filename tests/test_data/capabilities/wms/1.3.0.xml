@@ -302,7 +302,7 @@
               <BoundingBox CRS="EPSG:31468" minx="5206856.681333492" miny="3967808.5911816056" maxx="6152538.817042338" maxy="4804318.852602955"/>
               <BoundingBox CRS="EPSG:900913" minx="556597.4539663679" miny="5942074.072431108" maxx="1781111.852692377" maxy="7420309.048083066"/>
               <BoundingBox CRS="EPSG:1000001" minx="-408.08746049386383" miny="-4682.10021404221" maxx="489.431376286091" maxy="-3693.3198317559136"/>
-              <Dimension name="time" default="current" units="ISO8601">2021-11-29T12:40:00.000Z/2021-12-13T12:40:00.000Z/PT5M</Dimension>
+              <Dimension name="time" default="2021" units="ISO8601">1994/2021/P1Y</Dimension>
               <Style>
                 <Name>autowarn_vorhersage_types</Name>
                 <Title>AutoWARN Polygone</Title>
