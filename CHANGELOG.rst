@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[v0.14.5] - 2024-04-03
+----------------------
+
+Changed
+~~~~~~~
+
+* moved to `django-epsg-cache` v0.2.1
+
+
+
 [v0.14.4] - 2024-04-03
 ----------------------
 
