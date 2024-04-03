@@ -1,10 +1,10 @@
 import urllib.parse
 from typing import Dict, List
 
-from axis_order_cache.registry import Registry
-from axis_order_cache.utils import get_epsg_srid
 from django.contrib.gis.gdal import SpatialReference
 from django.contrib.gis.geos import GEOSGeometry, Polygon
+from epsg_cache.registry import Registry
+from epsg_cache.utils import get_epsg_srid
 from requests import Session
 
 from ows_lib.client.exceptions import (MissingBboxParam, MissingCrsParam,

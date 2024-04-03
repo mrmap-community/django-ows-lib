@@ -1,5 +1,5 @@
-from axis_order_cache.utils import get_epsg_srid
 from django.contrib.gis.geos import GEOSGeometry
+from epsg_cache.utils import get_epsg_srid
 from eulxml import xmlmap
 
 

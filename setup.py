@@ -14,7 +14,7 @@ license = 'MIT'
 
 REQUIREMENTS = [
     "django>=3.0",
-    "django-axis-order>=0.1.0",
+    "django-epsg-cache>=0.2.0",
     "eulxml>=1.1.3",
     "isodate>=0.6.1",
     "camel-converter>=3.0.0",
