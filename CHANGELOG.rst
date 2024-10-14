@@ -26,7 +26,7 @@ Changed
 Removed
 ~~~~~~~
 
-* python 3.8 support
+* python 3.8 and 3.9 support
 
 [v0.14.5] - 2024-04-03
 ----------------------
