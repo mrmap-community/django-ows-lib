@@ -30,9 +30,9 @@ class CatalogueServiceMixin(OgcClient):
         output_schema: str = "http://www.isotc211.org/2005/gmd",
         element_set_name: str = "full",
         xml_constraint: str = None,
+        cql_constraint: str = None,
         max_records: int = None,
         start_position: int = None,
-
     ) -> OGCRequest:
 
         params = {
@@ -51,7 +51,12 @@ class CatalogueServiceMixin(OgcClient):
                 "CONSTRAINT_LANGUAGE_VERSION": "1.1.0",
                 "Constraint": xml_constraint
             })
-
+        elif cql_constraint:
+            params.update({
+                "constraintLanguage": "CQL_TEXT",
+                "CONSTRAINT_LANGUAGE_VERSION": "1.1.0",
+                "Constraint": cql_constraint
+            })
         if max_records:
             params.update({
                 "maxRecords": max_records
