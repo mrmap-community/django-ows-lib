@@ -19,7 +19,7 @@ Added
 Changed
 ~~~~~~~
 
-* increased django version support up to 5.2
+* increased django version support up to 5.1
 * increased requests support up to 2.31.0
 * increased pygeofilter support up to 0.2.4
 
