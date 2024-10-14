@@ -14,6 +14,7 @@ Added
 ~~~~~
 
 * cql filter possibility to csw `get_records_request` function.
+* python 3.12 support
 
 Changed
 ~~~~~~~
@@ -22,6 +23,10 @@ Changed
 * increased requests support up to 2.31.0
 * increased pygeofilter support up to 0.2.4
 
+Removed
+~~~~~~~
+
+* python 3.8 support
 
 [v0.14.5] - 2024-04-03
 ----------------------
