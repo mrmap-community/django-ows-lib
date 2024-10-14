@@ -14,7 +14,6 @@ Added
 ~~~~~
 
 * cql filter possibility to csw `get_records_request` function.
-* python 3.12 support
 
 Changed
 ~~~~~~~
