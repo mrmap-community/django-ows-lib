@@ -7,6 +7,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+[v0.15.0] - 2024-10-14
+----------------------
+
+Added
+~~~~~
+
+* cql filter possibility to csw `get_records_request` function.
+
+Changed
+~~~~~~~
+
+* increased django version support up to 5.1
+* increased requests support up to 2.31.0
+* increased pygeofilter support up to 0.2.4
+
+Removed
+~~~~~~~
+
+* python 3.8 and 3.9 support
 
 [v0.14.5] - 2024-04-03
 ----------------------
