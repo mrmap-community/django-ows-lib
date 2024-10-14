@@ -11,10 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ----------------------
 
 Added
-~~~~~~~
+~~~~~
 
 * cql filter possibility to csw `get_records_request` function.
 
+Changed
+~~~~~~~
+
+* increased django version support up to 5.2
+* increased requests support up to 2.31.0
+* increased pygeofilter support up to 0.2.4
 
 
 [v0.14.5] - 2024-04-03
