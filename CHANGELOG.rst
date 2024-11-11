@@ -7,6 +7,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+[v0.16.0] - 2024-11-11
+----------------------
+
+Added
+~~~~~
+
+* support also wms version 1.3.0 to get client inside utility `get_client`
+
+
 [v0.15.0] - 2024-10-14
 ----------------------
 

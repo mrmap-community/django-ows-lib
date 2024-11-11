@@ -215,6 +215,9 @@ def get_client(capabilities: OGCServiceMixin, session: Session = Session()):
         if capabilities.service_type.version == "1.1.1":
             from ows_lib.client.wms.wms111 import WebMapService
             return WebMapService(capabilities=capabilities, session=session)
+        elif capabilities.service_type.version == "1.3.0":
+            from ows_lib.client.wms.wms130 import WebMapService
+            return WebMapService(capabilities=capabilities, session=session)
     if capabilities.service_type.name == "wfs":
         if capabilities.service_type.version == "2.0.0":
             from ows_lib.client.wfs.wfs200 import WebFeatureService
