@@ -2,7 +2,6 @@ import re
 from typing import List
 
 from ows_lib.client.mixins import OgcClient
-from ows_lib.client.utils import update_queryparams
 from ows_lib.models.ogc_request import OGCRequest
 
 
@@ -34,6 +33,7 @@ class CatalogueServiceMixin(OgcClient):
         max_records: int = None,
         start_position: int = None,
     ) -> OGCRequest:
+        from ows_lib.client.utils import update_queryparams
 
         params = {
             "VERSION": self.capabilities.service_type.version,
@@ -80,6 +80,8 @@ class CatalogueServiceMixin(OgcClient):
         output_schema: str = "http://www.isotc211.org/2005/gmd",
         element_set_name: str = "full",
     ) -> OGCRequest:
+        from ows_lib.client.utils import update_queryparams
+
         params = {
             "VERSION": self.capabilities.service_type.version,
             "SERVICE": "CSW",

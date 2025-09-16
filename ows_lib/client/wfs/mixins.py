@@ -3,7 +3,6 @@ from typing import List
 from requests import Request
 
 from ows_lib.client.mixins import OgcClient
-from ows_lib.client.utils import update_queryparams
 from ows_lib.models.ogc_request import OGCRequest
 from ows_lib.xml_mapper.xml_requests.wfs.get_feature import GetFeatureRequest
 
@@ -22,6 +21,8 @@ class WebFeatureServiceMixin(OgcClient):
             self,
             type_names: List[str],
             output_format: List[str]) -> Request:
+        from ows_lib.client.utils import update_queryparams
+
         params = {
             "VERSION": self.capabilitie.sservice_type.version,
             "REQUEST": "DescribeFeatureType",
@@ -38,6 +39,8 @@ class WebFeatureServiceMixin(OgcClient):
     def get_feature_request(
             self,
             get_feature_request: GetFeatureRequest) -> OGCRequest:
+        from ows_lib.client.utils import update_queryparams
+
         params = {
             "VERSION": self.capabilities.service_type.version,
             "REQUEST": "GetFeature",

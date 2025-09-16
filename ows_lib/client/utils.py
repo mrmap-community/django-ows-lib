@@ -8,14 +8,10 @@ from epsg_cache.registry import Registry
 from epsg_cache.utils import get_epsg_srid
 from requests import Session
 
-from ows_lib.client.csw.csw202 import CatalogueService as CSW202
 from ows_lib.client.enums import OGCServiceEnum
 from ows_lib.client.exceptions import (MissingBboxParam, MissingCrsParam,
                                        MissingServiceParam)
 from ows_lib.client.maps import CLIENT_MAP
-from ows_lib.client.wfs.wfs200 import WebFeatureService as WFS200
-from ows_lib.client.wms.wms111 import WebMapService as WMS111
-from ows_lib.client.wms.wms130 import WebMapService as WMS130
 from ows_lib.xml_mapper.capabilities.mixins import OGCServiceMixin
 
 

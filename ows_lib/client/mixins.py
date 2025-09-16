@@ -3,7 +3,6 @@ from abc import ABC
 from requests import Request, Response, Session
 
 from ows_lib.client.exceptions import InitialError
-from ows_lib.client.utils import update_queryparams
 from ows_lib.models.ogc_request import OGCRequest
 from ows_lib.xml_mapper.capabilities.mixins import OGCServiceMixin
 from ows_lib.xml_mapper.utils import get_parsed_service
@@ -63,6 +62,8 @@ class OgcClient(ABC):
         :return: A valid GetCapabilitites request
         :rtype: requests.Request
         """
+        from ows_lib.client.utils import update_queryparams
+
         params = {
             "VERSION": self.capabilities.service_type.version,
             "REQUEST": "GetCapabilities",
