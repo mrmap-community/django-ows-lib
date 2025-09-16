@@ -38,10 +38,11 @@ jobs:
         run: tox run -f py$(echo ${{ matrix.python-version }} | tr -d .)
 
       - name: upload coverage reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage-reports
           path: ./coverage.xml
+          pattern: coverage-reports-*
+          merge-multiple: true
 
   sonarcloud:
     needs: ["test"]
