@@ -1,5 +1,6 @@
 import urllib.parse
 from typing import Dict, List
+from urllib.parse import parse_qs, urlparse
 
 from django.contrib.gis.gdal import SpatialReference
 from django.contrib.gis.geos import GEOSGeometry, Polygon
@@ -7,6 +8,7 @@ from epsg_cache.registry import Registry
 from epsg_cache.utils import get_epsg_srid
 from requests import Session
 
+from ows_lib.client.enums import OGCServiceEnum
 from ows_lib.client.exceptions import (MissingBboxParam, MissingCrsParam,
                                        MissingServiceParam)
 from ows_lib.xml_mapper.capabilities.mixins import OGCServiceMixin
@@ -203,7 +205,34 @@ def get_requested_records(params: Dict) -> List[str]:
     return list(filter(None, params.get("Id", "").split(",")))
 
 
-def get_client(capabilities: OGCServiceMixin, session: Session = Session()):
+def _extract_service_and_version(
+    capabilities: OGCServiceMixin | str
+) -> tuple[OGCServiceEnum, str]:
+    """Hilfsfunktion: ermittelt SERVICE und VERSION"""
+    if isinstance(capabilities, OGCServiceMixin):
+        service = OGCServiceEnum(capabilities.service_type.name.lower())
+        version = capabilities.service_type.version
+        return service, version
+
+    if isinstance(capabilities, str):
+        parsed = urlparse(capabilities)
+        query = parse_qs(parsed.query)
+        service = query.get("SERVICE", [None])[0]
+        version = query.get("VERSION", [None])[0]
+        if not service or not version:
+            raise ValueError(
+                "URL must contain SERVICE and VERSION parameters")
+        try:
+            return OGCServiceEnum(service.lower()), version
+        except ValueError:
+            raise ValueError(f"Unknown SERVICE type: {service}")
+
+    raise TypeError("capabilities must be of type OGCServiceMixin or str")
+
+
+def get_client(capabilities: OGCServiceMixin | str,
+               session: Session = Session(),
+               ):
     """Helper function to construct the correct client version for given capabilities document
 
     :param capabilities: The parsed capabilities document
@@ -211,18 +240,13 @@ def get_client(capabilities: OGCServiceMixin, session: Session = Session()):
     :return: the concrete service client
     :rtype: WebMapService | WebFeatureService | CatalogueService
     """
-    if capabilities.service_type.name == "wms":
-        if capabilities.service_type.version == "1.1.1":
-            from ows_lib.client.wms.wms111 import WebMapService
-            return WebMapService(capabilities=capabilities, session=session)
-        elif capabilities.service_type.version == "1.3.0":
-            from ows_lib.client.wms.wms130 import WebMapService
-            return WebMapService(capabilities=capabilities, session=session)
-    if capabilities.service_type.name == "wfs":
-        if capabilities.service_type.version == "2.0.0":
-            from ows_lib.client.wfs.wfs200 import WebFeatureService
-            return WebFeatureService(capabilities=capabilities, session=session)
-    if capabilities.service_type.name == "csw":
-        if capabilities.service_type.version == "2.0.2":
-            from ows_lib.client.csw.csw202 import CatalogueService
-            return CatalogueService(capabilities=capabilities, session=session)
+    from ows_lib.client.maps import CLIENT_MAP
+
+    service, version = _extract_service_and_version(capabilities)
+
+    ClientClass = CLIENT_MAP.get((service, version))
+    if not ClientClass:
+        raise ValueError(
+            f"No client class registered for SERVICE={service.value} and VERSION={version}")
+
+    return ClientClass(capabilities=capabilities, session=session)

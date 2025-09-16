@@ -63,6 +63,7 @@ class OgcClient(ABC):
         :return: A valid GetCapabilitites request
         :rtype: requests.Request
         """
+
         params = {
             "VERSION": self.capabilities.service_type.version,
             "REQUEST": "GetCapabilities",

@@ -80,6 +80,7 @@ class CatalogueServiceMixin(OgcClient):
         output_schema: str = "http://www.isotc211.org/2005/gmd",
         element_set_name: str = "full",
     ) -> OGCRequest:
+
         params = {
             "VERSION": self.capabilities.service_type.version,
             "SERVICE": "CSW",

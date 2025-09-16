@@ -22,6 +22,7 @@ class WebFeatureServiceMixin(OgcClient):
             self,
             type_names: List[str],
             output_format: List[str]) -> Request:
+
         params = {
             "VERSION": self.capabilitie.sservice_type.version,
             "REQUEST": "DescribeFeatureType",
@@ -38,6 +39,7 @@ class WebFeatureServiceMixin(OgcClient):
     def get_feature_request(
             self,
             get_feature_request: GetFeatureRequest) -> OGCRequest:
+
         params = {
             "VERSION": self.capabilities.service_type.version,
             "REQUEST": "GetFeature",

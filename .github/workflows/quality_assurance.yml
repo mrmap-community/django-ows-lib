@@ -38,10 +38,12 @@ jobs:
         run: tox run -f py$(echo ${{ matrix.python-version }} | tr -d .)
 
       - name: upload coverage reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage-reports
           path: ./coverage.xml
+          pattern: coverage-reports-*
+          #merge-multiple: true
+          overwrite: true
 
   sonarcloud:
     needs: ["test"]
@@ -54,7 +56,7 @@ jobs:
           # Disabling shallow clone is recommended for improving relevancy of reporting
           fetch-depth: 0
       - name: download coverage reports
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: coverage-reports
           path: ./

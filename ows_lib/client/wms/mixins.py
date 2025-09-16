@@ -127,6 +127,7 @@ class WebMapServiceMixin(OgcClient):
         :return: the constructed get feature info request object
         :rtype: requests.Request
         """
+
         params: Dict = get_map_request.params
 
         get_feature_info_params = {
