@@ -1,5 +1,5 @@
 import urllib.parse
-from typing import Dict, List, Union
+from typing import Dict, List
 from urllib.parse import parse_qs, urlparse
 
 from django.contrib.gis.gdal import SpatialReference
@@ -11,7 +11,6 @@ from requests import Session
 from ows_lib.client.enums import OGCServiceEnum
 from ows_lib.client.exceptions import (MissingBboxParam, MissingCrsParam,
                                        MissingServiceParam)
-from ows_lib.client.maps import CLIENT_MAP
 from ows_lib.xml_mapper.capabilities.mixins import OGCServiceMixin
 
 
@@ -233,7 +232,7 @@ def _extract_service_and_version(
 
 def get_client(capabilities: OGCServiceMixin | str,
                session: Session = Session(),
-               ) -> Union[WMS111, WMS130, WFS200, CSW202]:
+               ):
     """Helper function to construct the correct client version for given capabilities document
 
     :param capabilities: The parsed capabilities document
@@ -241,6 +240,8 @@ def get_client(capabilities: OGCServiceMixin | str,
     :return: the concrete service client
     :rtype: WebMapService | WebFeatureService | CatalogueService
     """
+    from ows_lib.client.maps import CLIENT_MAP
+
     service, version = _extract_service_and_version(capabilities)
 
     ClientClass = CLIENT_MAP.get((service, version))

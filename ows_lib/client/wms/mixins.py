@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 from requests import Request
 
 from ows_lib.client.mixins import OgcClient
+from ows_lib.client.utils import update_queryparams
 from ows_lib.models.ogc_request import OGCRequest
 
 
@@ -64,7 +65,6 @@ class WebMapServiceMixin(OgcClient):
         :return: the constructed get map request object
         :rtype: Request
         """
-        from ows_lib.client.utils import update_queryparams
 
         if isinstance(transparent, str):
             if transparent == "TRUE":
@@ -127,7 +127,6 @@ class WebMapServiceMixin(OgcClient):
         :return: the constructed get feature info request object
         :rtype: requests.Request
         """
-        from ows_lib.client.utils import update_queryparams
 
         params: Dict = get_map_request.params
 
