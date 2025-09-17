@@ -32,7 +32,7 @@ class OgcClient(ABC):
 
         if isinstance(capabilities, OGCServiceMixin):
             self.capabilities = capabilities
-        elif capabilities is str and "?" in capabilities:
+        elif isinstance(capabilities, str) and "?" in capabilities:
             # client was initialized with an url
             response = self.send_request(
                 request=Request(method="GET", url=capabilities))
@@ -41,7 +41,9 @@ class OgcClient(ABC):
             else:
                 raise InitialError(
                     f"client could not be initialized by the given url: {capabilities}. Response status code: {response.status_code}")
-
+        else:
+            raise TypeError("capabilities has to be GetCapabilities URL or parsed capabilites of type OGCServiceMixin")
+        
     def send_request(self, request: OGCRequest, timeout: int = 10) -> Response:
         """Sends a given request with internal session object.
 
