@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+
+[v0.17.1] - 2025-09-17
+----------------------
+
+Fixed
+~~~~~
+
+* wrong type checking inside `__init__` of `get_client`. Now initialize with GetCapabilities url
+
+
 [v0.17.0] - 2025-09-16
 ----------------------
 
